@@ -14,7 +14,12 @@ from math import *
 # Rifle
 # Bullet
 # Tree
-# Shop area
+# Shop
+
+#TODO - Play Area
+# Surface
+# Border
+# Shop
 
 #TODO - UI
 # Ammo count
