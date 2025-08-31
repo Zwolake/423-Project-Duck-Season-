@@ -4,6 +4,9 @@ from OpenGL.GLUT import *
 from OpenGL.GLU import *
 from math import *
 
+FOV_Y = 120
+
+
 #TODO - any other libraries
 
 
@@ -16,6 +19,24 @@ from math import *
 # Rifle
 # Bullet
 # Tree
+def draw_tree(x,y):
+    glPushMatrix()
+    glTranslatef(x, y, 0)
+    glColor3f(0.5, 0.35, 0.05)  # Brown color for trunk
+    glBegin(GL_QUADS)
+    glVertex3f(-0.1, 0, 0)
+    glVertex3f(0.1, 0, 0)
+    glVertex3f(0.1, 0.5, 0)
+    glVertex3f(-0.1, 0.5, 0)
+    glEnd()
+    glColor3f(0.0, 0.5, 0.0)  # Green color for leaves
+    glBegin(GL_TRIANGLES)
+    glVertex3f(-0.5, 0.5, 0)
+    glVertex3f(0.5, 0.5, 0)
+    glVertex3f(0, 1, 0)
+    glEnd()
+    glPopMatrix()
+
 # Shop
 
 
@@ -94,18 +115,17 @@ def mouseListener(button, state, x, y):
 
 #TODO Finishing touch
 
-
 # camera
 def setupCamera():
     glMatrixMode(GL_PROJECTION)  # Switch to projection matrix mode
     glLoadIdentity()  # Reset the projection matrix
-    gluPerspective(fovY, 1.25, 0.1, 2500) # Set up a perspective projection (field of view, aspect ratio, near clip, far clip)
+    gluPerspective(FOV_Y, 1.25, 0.1, 2500) # Set up a perspective projection (field of view, aspect ratio, near clip, far clip)
     glMatrixMode(GL_MODELVIEW)  # Switch to model-view matrix mode
     glLoadIdentity()  # Reset the model-view matrix
 
     #TODO camera position and orientation
 
-    gluLookAt(0, 0, 0,  # Camera position
+    gluLookAt(0, 100, 0,  # Camera position
               0, 0, 0,  # Look at point
               0, 0, 1)  # Up vector
     
@@ -116,8 +136,10 @@ def showScreen():
     glViewport(0, 0, 1000, 800)  # Set viewport size
 
     #TODO setupCamera()
+    setupCamera()
 
     #TODO draw_shapes()
+    draw_tree(0, 0)
 
     # Display game info text at a fixed screen position
     # draw_text(10, 770, f"A Random Fixed Position Text")
