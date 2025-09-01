@@ -13,6 +13,7 @@ LOOK_Y = 0
 LOOK_Z = 25
 LOOK_SPEED_X = 10
 LOOK_SPEED_Z = 2.5
+LOOK_DELTA_ANGLE = 0.1
 
 PLAYER_X = -100
 PLAYER_Y = -100
@@ -153,6 +154,7 @@ def mouseListener(button, state, _x, _y):
     global LOOK_X, LOOK_Y, LOOK_Z
     if button == 0 and state == GLUT_DOWN:
         # aim left
+
         print("Aim Left")
         pass
     if button == 2 and state == GLUT_DOWN:
