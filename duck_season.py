@@ -8,11 +8,11 @@ CAM_X = 0
 CAM_Y = -100
 CAM_Z = 100
 
-LOOK_X = 0
-LOOK_Y = 0
+LOOK_X = 200
+LOOK_Y = 200
 LOOK_Z = 25
 LOOK_SPEED_X = 10
-LOOK_SPEED_Z = 2.5
+LOOK_SPEED_Z = 50
 LOOK_DELTA_ANGLE = 0.1
 
 PLAYER_X = -100
@@ -23,39 +23,53 @@ PLAYER_SPEED = 10
 GROUND_LENGTH = 1000
 GROUND_WIDTH = 1000
 
+SKYBOX_HEIGHT = 1000
+
 TREE_TRUNK_RADIUS = 10
 TREE_TRUNK_HEIGHT = 50
-TREE_LEAVES_RADIUS = 70
+TREE_LEAVES_RADIUS = 30
 TREE_LEAVES_HEIGHT = 50
 
-FOV_Y = 120
+FOV_Y = 90
 
+AIM_LEFT = False
+AIM_RIGHT = False
 
 #TODO - any other libraries
 
 
 #TODO - GameObjects
-# Duck flying
-# Duck Falling
-# Duck Landed
+#! Duck flying
+#! Duck Falling
+#! Duck Landed
 # Dog(?)
 # Wolves(?)
-# Rifle
-# Bullet
-# Tree
+#! Rifle
+#! Bullet
+#* Tree
 def draw_tree(x,y):
-    glPushMatrix()
+    glPushMatrix()  #? transform start
+
     glTranslatef(x, y, 0)
-    glColor3f(0.5, 0.35, 0.05)  # Brown color for trunk
 
-    # glTranslatef(0, 0, 0)  # Move to the base of the trunk
-    gluCylinder(gluNewQuadric(), TREE_TRUNK_RADIUS, TREE_TRUNK_RADIUS, TREE_TRUNK_HEIGHT, 12, 1)  # parameters are: quadric, base radius, top radius, height, slices, stacks
-    
-    glTranslatef(0, 0, TREE_TRUNK_HEIGHT)  # Move to the top of the trunk
+    #* tree leaves
+    glPushMatrix()
 
-    glColor3f(0.0, 0.5, 0.0)  # Green color for leaves
+    glTranslatef(0, 0, TREE_TRUNK_HEIGHT)  #? Move to the top of the trunk
+    glColor3f(0.0, 0.5, 0.0)  #? Green color for leaves
     gluCylinder(gluNewQuadric(), TREE_LEAVES_RADIUS, 0, TREE_LEAVES_HEIGHT, 12, 1)  # parameters are: quadric, base radius, top radius, height, slices, stacks
     
+    glPopMatrix()
+
+    #*tree trunk
+    glPushMatrix()
+
+    glColor3f(0.5, 0.35, 0.05)  #? Brown color for trunk
+    gluCylinder(gluNewQuadric(), TREE_TRUNK_RADIUS, TREE_TRUNK_RADIUS, TREE_TRUNK_HEIGHT, 12, 1)  # parameters are: quadric, base radius, top radius, height, slices, stacks
+    
+    glPopMatrix()
+    
+    glPopMatrix()   #? transform end
     
     # glVertex3f(-0.1, 0, 0)
     # glVertex3f(0.1, 0, 0)
@@ -68,9 +82,8 @@ def draw_tree(x,y):
     # glVertex3f(0.5, 0.5, 0)
     # glVertex3f(0, 1, 0)
     # glEnd()
-    glPopMatrix()
 
-# Shop
+#! Shop
 
 
 #TODO - Play Area
@@ -84,33 +97,33 @@ def draw_surface():
     glVertex3f(-GROUND_LENGTH, GROUND_WIDTH, 0)
     glEnd()
 
-# Border
-# Shop
+#! Border
+#! Shop
 
 
 #TODO - UI
-# Ammo count
-# Money display
-# Shop UI - numbers corresponding to items
-# Crosshair
+#! Ammo count
+#! Money display
+#! Shop UI - numbers corresponding to items
+#! Crosshair
 
 
 #TODO Implement game logic
-# Duck flying
-# Duck falling
-# Duck landed
-# Dog AI
-# Wolf AI
-# Rifle mechanics
-# Bullet mechanics
-# Border interactions
-# Shop interactions
+#! Duck flying
+#! Duck falling
+#! Duck landed
+#! Dog AI
+#! Wolf AI
+#! Rifle mechanics
+#! Bullet mechanics
+#! Border interactions
+#! Shop interactions
 
 
 #TODO Controls
 
 
-# Movement keys (WASD) + Shop menu (numbers)
+#! Movement keys (WASD) + Shop menu (numbers)
 def keyboardListener(key, _x, _y):
     #TODO assign movement
     global PLAYER_X, PLAYER_Y, PLAYER_Z
@@ -152,24 +165,29 @@ def specialKeyListener(key, _x, _y):
 def mouseListener(button, state, _x, _y):
     #TODO assign shooting
     global LOOK_X, LOOK_Y, LOOK_Z
+    global AIM_LEFT, AIM_RIGHT
     if button == 0 and state == GLUT_DOWN:
-        # aim left
+        # *aim left
+        AIM_LEFT = True
+    if button == 0 and state == GLUT_UP:
+        AIM_LEFT = False
 
-        print("Aim Left")
-        pass
     if button == 2 and state == GLUT_DOWN:
-        # aim right
-        print("Aim Right")
-        pass
+        # *aim right
+        AIM_RIGHT = True
+    if button == 2 and state == GLUT_UP:
+        AIM_RIGHT = False
+
     if button == 3 and state == GLUT_DOWN:
         # aim up
         print("Aim Up")
-        LOOK_Z += 1 * LOOK_SPEED_Z
+        LOOK_Z = min(LOOK_Z + (1 * LOOK_SPEED_Z), SKYBOX_HEIGHT)
         pass
+
     if button == 4 and state == GLUT_DOWN:
         # aim down
         print("Aim Down")
-        LOOK_Z -= 1 * LOOK_SPEED_Z
+        LOOK_Z = max(LOOK_Z - (1 * LOOK_SPEED_Z), -SKYBOX_HEIGHT)
         pass
 
 #TODO Finishing touch
@@ -196,7 +214,7 @@ def setupCamera():
     #TODO camera position and orientation
 
     gluLookAt(PLAYER_X, PLAYER_Y, PLAYER_Z,  # Camera position
-              PLAYER_X , PLAYER_Y +10, LOOK_Z,  # Look at point
+              PLAYER_X + LOOK_X , PLAYER_Y + LOOK_Y + 1, LOOK_Z,  # Look at point
               0, 0, 1)  # Up vector
     
 # display
@@ -212,6 +230,10 @@ def showScreen():
     # Draw the surface and a tree so something is visible
     draw_surface()
     draw_tree(0, 0)
+    glPushMatrix()
+    glTranslatef(0, 0, 1000)
+    glutSolidCube(10)
+    glPopMatrix()
 
     # Display game info text at a fixed screen position
     # draw_text(10, 770, f"A Random Fixed Position Text")
@@ -220,6 +242,19 @@ def showScreen():
 
 # idle
 def idle():
+    global LOOK_X, LOOK_Y, LOOK_Z
+    if AIM_LEFT:
+        _x = LOOK_X * cos(-LOOK_DELTA_ANGLE) - LOOK_Y * sin(-LOOK_DELTA_ANGLE)
+        _y = LOOK_X * sin(-LOOK_DELTA_ANGLE) + LOOK_Y * cos(-LOOK_DELTA_ANGLE)
+        LOOK_X, LOOK_Y = _x, _y
+        print(LOOK_X, LOOK_Y)
+        print("Aim Left")
+
+    if AIM_RIGHT:
+        _x = LOOK_X * cos(LOOK_DELTA_ANGLE) - LOOK_Y * sin(LOOK_DELTA_ANGLE)
+        _y = LOOK_X * sin(LOOK_DELTA_ANGLE) + LOOK_Y * cos(LOOK_DELTA_ANGLE)
+        LOOK_X, LOOK_Y = _x, _y     
+        print("Aim Right")
 
     #TODO update game state
     devDebug()
@@ -231,7 +266,7 @@ def main():
     glutInit()
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH)  # Double buffering, RGB color, depth test
     glutInitWindowSize(1280, 720)  # Window size
-    glutInitWindowPosition(0, 0)  # Window position
+    glutInitWindowPosition(100, 100)  # Window position
     glutCreateWindow(b"Duck Season")  # Create the window
 
     glutDisplayFunc(showScreen)  # Register display function
