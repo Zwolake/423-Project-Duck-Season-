@@ -56,17 +56,156 @@ DUCKS = [[random.uniform(-500, 500),
                          DUCK_FLYING_Z - DUCK_FLYING_Z/4)]
           for _ in range(DUCK_COUNT)]
 
-#TODO - GameObjects
-class duck:
-    def __init__(self, x, y, z, state):
-        self.x = x
-        self.y = y
-        self.z = random.uniform(DUCK_FLYING_Z + DUCK_FLYING_Z/4, DUCK_FLYING_Z - DUCK_FLYING_Z/4)
-        self.state = state  #? flying, falling, landed
+# Color Variables
+duck_light_gray = (0.7, 0.7, 0.7)
+duck_med_gray = (0.6, 0.6, 0.6)
+duck_medium_gray = (0.5, 0.5, 0.5)
+duck_dark_gray = (0.3, 0.3, 0.3)
+eye_black = (0.0, 0.0, 0.0)
 
-#! Duck flying
+
+#TODO - GameObjects
+class Duck:
+    def __init__(self, x, y, z):
+        self.position = (x, y, z)
+        self.wing_flapping_angle = 0
+        self.state = 'flying'
+        self.wing_angle = 0.0
+
+
+    def draw_duck(self):
+        global duck_dark_gray, duck_light_gray, duck_med_gray, duck_medium_gray, eye_black
+
+        glPushMatrix()
+        if self.state == 'dead':
+            glRotatef(180, 1, 0, 0)
+        
+        if self.state == 'falling':
+            glRotatef(90, 1, 0, 0)
+
+        # Body
+        glPushMatrix()
+        glColor3f(*duck_light_gray)
+        glScalef(1.5, 1, 2.5)
+        glTranslatef(0, 0, 0)
+        glutSolidCube(1.5)
+        glPopMatrix()
+
+        # Neck
+        glPushMatrix()
+        glColor3f(*duck_dark_gray)
+        glScalef(0.7, 0.5, 0.7)
+        glTranslatef(0, 0.6, 3)
+        glutSolidCube(1.0)
+        glPopMatrix()
+
+        # Head
+        glPushMatrix()
+        glColor3f(*duck_med_gray)
+        glScalef(1.1, 1.0, 1.0)
+        glTranslatef(0, 0.4, 2.8)
+        glutSolidCube(1.0)
+        glPopMatrix()
+
+        # Beak
+        glPushMatrix()
+        glColor3f(*duck_dark_gray)
+        glScalef(0.6, 0.2, 0.5)
+        glTranslatef(0, 0.6, 6.7)
+        glutSolidCube(1)
+        glPopMatrix()
+
+        # Left eye
+        glPushMatrix()
+        glColor3f(*eye_black)
+        glScalef(0.2, 0.2, 0.2)
+        glTranslatef(-2.5, 3.6, 15.0)
+        glutSolidCube(1.0)
+        glPopMatrix()
+        
+        # Right eye
+        glPushMatrix()
+        glColor3f(*eye_black)
+        glScalef(0.2, 0.2, 0.2)
+        glTranslatef(2.5, 3.6, 15.0)
+        glutSolidCube(1.0)
+        glPopMatrix()
+
+
+        self.wing_delta = 25 * sin(radians(self.wing_angle))
+        
+        # Left wing
+        glPushMatrix()
+        glColor3f(*duck_medium_gray)
+        glTranslatef(-1.5, 0.4, 0.0)
+        if self.state == 'flying':
+            glRotatef(self.wing_delta - 30, 0, 0, 1)
+        glScalef(1.9, 0.2, 1.0)
+        glutSolidCube(1.5)
+        glPopMatrix()
+
+        # Right wing
+        glPushMatrix()
+        glColor3f(*duck_medium_gray)
+        glTranslatef(1.7, 0.4, 0.0)
+        if self.state == 'flying':
+            glRotatef(-self.wing_delta + 30, 0, 0, 1)
+        glScalef(1.9, 0.2, 1.0)
+        glutSolidCube(1.5)
+        glPopMatrix()
+
+        # Left leg
+        glPushMatrix()
+        glColor3f(*duck_dark_gray)
+        glScalef(0.3, 1.0, 0.3)
+        glTranslatef(-2.0, -1.2, -1.0)
+        glutSolidCube(1.0)
+        glPopMatrix()
+
+        # Right leg
+        glPushMatrix()
+        glColor3f(*duck_dark_gray)
+        glScalef(0.3, 1.0, 0.3)
+        glTranslatef(2.0, -1.2, -1.0)
+        glutSolidCube(1.0)
+        glPopMatrix()
+
+        # Tail
+        glPushMatrix()
+        glColor3f(*duck_dark_gray)
+        glTranslatef(0, -0.2, -2.0)
+        glRotatef(20, 1, 0, 0)
+        glScalef(1.8, 0.3, 2.4)
+        glutSolidCube(1.0)
+        glPopMatrix()
+        glPopMatrix()
+
+    def drop_duck(self):
+
+        '''If bullet hits the duck, the state changes into falling.
+        So at collision of bullet and duck, call this function.'''
+
+        self.state = 'falling'
+        self.wing_angle = 0.0
+
+    def dead_duck(self):               
+        
+        '''If falling duck hits ground state changes to dead.
+        So when at collision with ground, call this function.'''
+
+        self.state = 'dead'
+        self.wing_angle = 0.0
+
+
+
+
 #! Duck Falling
 #! Duck Landed
+
+
+
+
+
 #* draw_duck placeholder
 def draw_duck(x, y, z, state):  #? x,y,z, (flying/falling/landed)
     glPushMatrix()
@@ -355,7 +494,13 @@ def idle():
         print(PLAYER_R)
         print("Aim Right")
 
-    
+
+    # -------- Duck animation --------- #
+    global ducks
+    for d in ducks:
+        if d.state == 'flying':
+            d.wing_angle += 5.0
+    # ---------------------------------- #
 
     #TODO update game state
     devDebug()
