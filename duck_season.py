@@ -340,18 +340,18 @@ def idle():
     
     #* Player aiming
     if AIM_LEFT:
-        aim_x = LOOK_X * cos(radians(-LOOK_DELTA_ANGLE)) - LOOK_Y * sin(radians(-LOOK_DELTA_ANGLE))
-        aim_y = LOOK_X * sin(radians(-LOOK_DELTA_ANGLE)) + LOOK_Y * cos(radians(-LOOK_DELTA_ANGLE))
-        LOOK_X, LOOK_Y = aim_x, aim_y
-        PLAYER_R -= LOOK_DELTA_ANGLE    #? Update player rotation
-        print(PLAYER_R)
-        print("Aim Left")
-
-    if AIM_RIGHT:
         aim_x = LOOK_X * cos(radians(LOOK_DELTA_ANGLE)) - LOOK_Y * sin(radians(LOOK_DELTA_ANGLE))
         aim_y = LOOK_X * sin(radians(LOOK_DELTA_ANGLE)) + LOOK_Y * cos(radians(LOOK_DELTA_ANGLE))
         LOOK_X, LOOK_Y = aim_x, aim_y
         PLAYER_R += LOOK_DELTA_ANGLE    #? Update player rotation
+        print(PLAYER_R)
+        print("Aim Left")
+
+    if AIM_RIGHT:
+        aim_x = LOOK_X * cos(radians(-LOOK_DELTA_ANGLE)) - LOOK_Y * sin(radians(-LOOK_DELTA_ANGLE))
+        aim_y = LOOK_X * sin(radians(-LOOK_DELTA_ANGLE)) + LOOK_Y * cos(radians(-LOOK_DELTA_ANGLE))
+        LOOK_X, LOOK_Y = aim_x, aim_y
+        PLAYER_R -= LOOK_DELTA_ANGLE    #? Update player rotation
         print(PLAYER_R)
         print("Aim Right")
 
