@@ -1,9 +1,16 @@
+#* libraries
 from OpenGL.GL import *
 from OpenGL.GLUT import *
 from OpenGL.GLU import *
 from math import *
+import random
 import time
 
+''' x=width (left-right)
+    y=depth (forward-backward)
+    z=height (up-down) '''
+
+#* Game variables
 CAM_X = 0
 CAM_Y = -100
 CAM_Z = 100
@@ -41,13 +48,45 @@ MOVE_RIGHT = False
 AIM_LEFT = False
 AIM_RIGHT = False
 
-#TODO - any other libraries
-
+DUCK_COUNT = 20
+DUCK_FLYING_Z = 500
+DUCKS = [[random.uniform(-500, 500),
+          random.uniform(-500, 500), 
+          random.uniform(DUCK_FLYING_Z + DUCK_FLYING_Z/4, 
+                         DUCK_FLYING_Z - DUCK_FLYING_Z/4)]
+          for _ in range(DUCK_COUNT)]
 
 #TODO - GameObjects
+class duck:
+    def __init__(self, x, y, z, state):
+        self.x = x
+        self.y = y
+        self.z = random.uniform(DUCK_FLYING_Z + DUCK_FLYING_Z/4, DUCK_FLYING_Z - DUCK_FLYING_Z/4)
+        self.state = state  #? flying, falling, landed
+
 #! Duck flying
 #! Duck Falling
 #! Duck Landed
+#* draw_duck placeholder
+def draw_duck(x, y, z, state):  #? x,y,z, (flying/falling/landed)
+    glPushMatrix()
+    glTranslatef(x, y, z)
+
+    if state == "flying":
+        # Draw the duck in a flying position
+        glColor3f(1.0, 1.0, 0.0)  # Yellow color for the duck
+        glutSolidSphere(5, 10, 10)  # Draw the duck's body
+    elif state == "falling":
+        # Draw the duck in a falling position
+        glColor3f(1.0, 0.0, 0.0)  # Red color for the duck
+        glutSolidSphere(5, 10, 10)  # Draw the duck's body
+    elif state == "landed":
+        # Draw the duck in a landed position
+        glColor3f(0.0, 0.0, 0.0)  # Black color for the duck
+        glutSolidSphere(5, 10, 10)  # Draw the duck's body
+
+    glPopMatrix()
+
 # Dog(?)
 # Wolves(?)
 #! Rifle
@@ -76,18 +115,6 @@ def draw_tree(x,y):
     glPopMatrix()
     
     glPopMatrix()   #? transform end
-    
-    # glVertex3f(-0.1, 0, 0)
-    # glVertex3f(0.1, 0, 0)
-    # glVertex3f(0.1, 0.5, 0)
-    # glVertex3f(-0.1, 0.5, 0)
-    # glEnd()
-    # glColor3f(0.0, 0.5, 0.0)  # Green color for leaves
-    # glBegin(GL_TRIANGLES)
-    # glVertex3f(-0.5, 0.5, 0)
-    # glVertex3f(0.5, 0.5, 0)
-    # glVertex3f(0, 1, 0)
-    # glEnd()
 
 #! Shop
 
@@ -106,20 +133,18 @@ def draw_surface():
 #! Border
 #! Shop
 
-
 #TODO - UI
 #! Ammo count
 #! Money display
 #! Shop UI - numbers corresponding to items
 #! Crosshair
 
-
 #TODO Implement game logic
 #! Duck flying
 #! Duck falling
 #! Duck landed
-#! Dog AI
-#! Wolf AI
+# Dog AI
+# Wolf AI
 #! Rifle mechanics
 #! Bullet mechanics
 #! Border interactions
@@ -286,6 +311,14 @@ def showScreen():
     # Draw the surface and a tree so something is visible
     draw_surface()
     draw_tree(0, 0)
+
+    for duck in DUCKS:
+        x = duck[0]
+        y = duck[1]
+        z = duck[2]
+        state = "flying"
+        draw_duck(x, y, z, state)
+
     glPushMatrix()
     glTranslatef(0, 0, 1000)
     glutSolidCube(10)
