@@ -585,11 +585,10 @@ def idle():
 
 #KAFI---bruh wasnt sure where to add so pasting it here (may have overdone stuff and maybe it wont work :v ) : 
 #HUD ----------->
-from OpenGL.GL import *
-from OpenGL.GLUT import *
-from OpenGL.GLU import *
-import math, time, random
-
+# from OpenGL.GL import *
+# from OpenGL.GLUT import *
+# from OpenGL.GLU import *
+# import math, time, random
 
 class HUD:
     def __init__(self):
