@@ -583,7 +583,7 @@ def idle():
 
     glutPostRedisplay()  # Request a redraw
 
-#bruh wasnt sure where to add so pasting it here (may have overdone stuff and maybe it wont work :v ) : 
+#KAFI---bruh wasnt sure where to add so pasting it here (may have overdone stuff and maybe it wont work :v ) : 
 #HUD ----------->
 from OpenGL.GL import *
 from OpenGL.GLUT import *
