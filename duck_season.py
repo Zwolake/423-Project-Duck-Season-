@@ -63,6 +63,13 @@ duck_medium_gray = (0.5, 0.5, 0.5)
 duck_dark_gray = (0.3, 0.3, 0.3)
 eye_black = (0.0, 0.0, 0.0)
 
+# Gun Color Variables
+gun_brown = (0.35, 0.15, 0.0) 
+gun_dark_brown = (0.2, 0.1, 0.0)
+gun_black = (0.1, 0.1, 0.1)
+
+
+
 
 #TODO - GameObjects
 class Duck:
@@ -232,7 +239,76 @@ def draw_duck(x, y, z, state):  #? x,y,z, (flying/falling/landed)
 
 # Dog(?)
 # Wolves(?)
+
 #! Rifle
+def draw_shotgun_model():
+    # Stock (main wooden part)
+    glPushMatrix()
+    glColor3f(*gun_brown)
+    glTranslatef(0.3, -0.3, 1.9)
+    glScalef(0.4, 0.8, 2.0)
+    glRotate(20, 1, 0, 0)
+    glutSolidCube(1.0)
+    glPopMatrix()
+    
+    # Body (receiver)
+    glPushMatrix()
+    glColor3f(*gun_black)
+    glTranslatef(0.3, -0.2, 0.7)
+    glScalef(0.5, 0.8, 1.3)
+    glutSolidCube(1.0)
+    glPopMatrix()
+    
+    # Handle (trigger handle)
+    glPushMatrix()
+    glColor3f(*gun_black)
+    glTranslatef(0.25, -0.48, 0.0)
+    glScalef(0.5, 1.2, 0.5)
+    glutSolidCube(1.0)
+    glPopMatrix()
+
+    # Trigger Guard (a thin part under the body)
+    glPushMatrix()
+    glColor3f(*gun_black)
+    glTranslatef(0.3, -0.5, -0.5)
+    glScalef(0.4, 0.4, 0.2)
+    glutSolidCube(1.0)
+    glPopMatrix()
+    
+    # Pump (front sliding part)
+    glPushMatrix()
+    glColor3f(*gun_dark_brown)
+    glTranslatef(0.25, -0.15, -1.0)
+    glScalef(1.0, 0.5, 1.8)
+    glutSolidCube(1.0)
+    glPopMatrix()
+    
+    # Magazine Tube (under the barrel)
+    glPushMatrix()
+    glColor3f(*gun_black)
+    glTranslatef(0.25, -0.3, -1.5)
+    glScalef(0.4, 0.4, 3.0)
+    glutSolidCube(1.0)
+    glPopMatrix()
+    
+    # Barrel (the longest part)
+    glPushMatrix()
+    glColor3f(*gun_black)
+    glTranslatef(0.25, 0.1, -2.5)
+    glScalef(0.4, 0.4, 4.0)
+    glutSolidCube(1.0)
+    glPopMatrix()
+    
+    # Sights (small parts on top of the barrel)
+    glPushMatrix()
+    glColor3f(*gun_black)
+    glTranslatef(0.25, 0.3, -4.3)
+    glScalef(0.1, 0.2, 0.2)
+    glutSolidCube(1.0)
+    glPopMatrix()
+
+
+
 #! Bullet
 #* Tree
 def draw_tree(x,y):
