@@ -1,9 +1,9 @@
 """
 Duck Shooting
 # First-Person Shooter template with simple Boids flock AI for ducks
-# Menu scene + Shooting scene + ultra-light Level/Shop stubs
-# Animated FPS hands + rifle made from simple meshes (no external assets)
-# Triplanar terrain shader + simple water shader with ripples (fake reflection)
+# Menu scene + Shooting scene + Level/Shop
+# Animated FPS hands + rifle made from simple meshes
+# Triplanar terrain shader + simple water shader with ripples
 # Ray picking for shooting; distance-based scoring; basic HUD text
 
 Controls -
