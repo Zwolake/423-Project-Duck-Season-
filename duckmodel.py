@@ -1,197 +1,176 @@
+import sys
 from OpenGL.GL import *
 from OpenGL.GLUT import *
 from OpenGL.GLU import *
-from math import *
-import time
+import math
 
-CAM_X = 0
-CAM_Y = -100
-CAM_Z = 100
+# Global variable for animation
+rotation_angle = 0.0
+wing_flapping_angle = 0.0
 
-LOOK_X = 0
-LOOK_Y = 0
-LOOK_Z = 25
-LOOK_SPEED_X = 10
-LOOK_SPEED_Z = 2.5
-LOOK_DELTA_ANGLE = 0.1
-
-PLAYER_X = -100
-PLAYER_Y = -100
-PLAYER_Z = 25
-PLAYER_SPEED = 10
-
-GROUND_LENGTH = 1000
-GROUND_WIDTH = 1000
-
-TREE_TRUNK_RADIUS = 10
-TREE_TRUNK_HEIGHT = 50
-TREE_LEAVES_RADIUS = 70
-TREE_LEAVES_HEIGHT = 50
-
-FOV_Y = 120
-
-
-#TODO - any other libraries
-
-
-#TODO - GameObjects
-# Duck
 def draw_duck():
-    # Define colors
-    body_color = (1.0, 1.0, 0.0)  # Yellow for body
-    head_color = (1.0, 1.0, 0.0)  # Yellow for head
-    beak_color = (1.0, 0.6, 0.0)  # Orange for beak
-    leg_color = (1.0, 0.6, 0.0)   # Orange for legs
 
-    # Draw the body
-    glTranslatef(0, 0, 0)
+    # Colors
+    duck_light_gray = (0.7, 0.7, 0.7)
+    duck_med_gray = (0.6, 0.6, 0.6)
+    duck_medium_gray = (0.5, 0.5, 0.5)
+    duck_dark_gray = (0.3, 0.3, 0.3)
+    eye_black = (0.0, 0.0, 0.0)
+
+    # Body
     glPushMatrix()
-    glRotatef(0, 0, 0, 0)
-    glScalef(60,20,60)
-    glColor3f(*body_color)
+    glColor3f(*duck_light_gray)
+    glScalef(1.5, 1, 2.5)
+    glTranslatef(0, 0, 0)
+    glutSolidCube(1.5)
+    glPopMatrix()
+
+
+
+    # Neck
+    glPushMatrix()
+    glColor3f(*duck_dark_gray)
+    glScalef(0.7, 0.5, 0.7)
+    glTranslatef(0, 0.6, 3)
+    glutSolidCube(1.0)
+    glPopMatrix()
+
+
+
+    # Head
+    glPushMatrix()
+    glColor3f(*duck_med_gray)
+    glScalef(1.1, 1.0, 1.0)
+    glTranslatef(0, 0.4, 2.8)
+    glutSolidCube(1.0)
+    glPopMatrix()
+
+    # Beak
+    glPushMatrix()
+    glColor3f(*duck_dark_gray)
+    glScalef(0.6, 0.2, 0.5)
+    glTranslatef(0, 0.6, 6.7)
     glutSolidCube(1)
     glPopMatrix()
 
-    
-
-
-# Duck flying
-# Duck Falling
-# Duck Landed
-# Dog(?)
-# Wolves(?)
-# Rifle
-# Bullet
-# Tree
-def draw_tree(x,y):
+    # Left eye
     glPushMatrix()
-    glTranslatef(x, y, 0)
-    glColor3f(0.5, 0.35, 0.05)  # Brown color for trunk
-
-    # glTranslatef(0, 0, 0)  # Move to the base of the trunk
-    gluCylinder(gluNewQuadric(), TREE_TRUNK_RADIUS, TREE_TRUNK_RADIUS, TREE_TRUNK_HEIGHT, 12, 1)  # parameters are: quadric, base radius, top radius, height, slices, stacks
+    glColor3f(*eye_black)
+    glScalef(0.2, 0.2, 0.2)
+    glTranslatef(-2.5, 3.6, 15.0)
+    glutSolidCube(1.0)
+    glPopMatrix()
     
-    glTranslatef(0, 0, TREE_TRUNK_HEIGHT)  # Move to the top of the trunk
-
-    glColor3f(0.0, 0.5, 0.0)  # Green color for leaves
-    gluCylinder(gluNewQuadric(), TREE_LEAVES_RADIUS, 0, TREE_LEAVES_HEIGHT, 12, 1)  # parameters are: quadric, base radius, top radius, height, slices, stacks
-    
-    
-    # glVertex3f(-0.1, 0, 0)
-    # glVertex3f(0.1, 0, 0)
-    # glVertex3f(0.1, 0.5, 0)
-    # glVertex3f(-0.1, 0.5, 0)
-    # glEnd()
-    # glColor3f(0.0, 0.5, 0.0)  # Green color for leaves
-    # glBegin(GL_TRIANGLES)
-    # glVertex3f(-0.5, 0.5, 0)
-    # glVertex3f(0.5, 0.5, 0)
-    # glVertex3f(0, 1, 0)
-    # glEnd()
+    # Right eye
+    glPushMatrix()
+    glColor3f(*eye_black)
+    glScalef(0.2, 0.2, 0.2)
+    glTranslatef(2.5, 3.6, 15.0)
+    glutSolidCube(1.0)
     glPopMatrix()
 
-# Shop
+    # --- Draw the Wings (rotated cubes for flapping animation) ---
+    global wing_flapping_angle
+    wing_flapping_rotation = 25 * math.sin(math.radians(wing_flapping_angle))
+
+    # Left wing
+    glPushMatrix()
+    glColor3f(*duck_medium_gray)
+    glTranslatef(-1.5, 0.4, 0.0)
+    glRotatef(wing_flapping_rotation - 30, 0, 0, 1)
+    glScalef(1.9, 0.2, 1.0)
+    glutSolidCube(1.5)
+    glPopMatrix()
+
+    # Right wing
+    glPushMatrix()
+    glColor3f(*duck_medium_gray)
+    glTranslatef(1.7, 0.4, 0.0)
+    glRotatef(-wing_flapping_rotation + 30, 0, 0, 1)
+    glScalef(1.9, 0.2, 1.0)
+    glutSolidCube(1.5)
+    glPopMatrix()
+
+    # --- Draw the Legs (cubes) ---
+    # Left leg
+    glPushMatrix()
+    glColor3f(*duck_dark_gray)
+    glScalef(0.3, 1.0, 0.3)
+    glTranslatef(-2.0, -1.2, -1.0)
+    glutSolidCube(1.0)
+    glPopMatrix()
+
+    # Right leg
+    glPushMatrix()
+    glColor3f(*duck_dark_gray)
+    glScalef(0.3, 1.0, 0.3)
+    glTranslatef(2.0, -1.2, -1.0)
+    glutSolidCube(1.0)
+    glPopMatrix()
 
 
-#TODO - Play Area
-# Surface
-def draw_surface():
-    glBegin(GL_QUADS)
-    glColor3f(0.0, 1, 0.0)  # Green color for grass
-    glVertex3f(-GROUND_LENGTH, -GROUND_WIDTH, 0)
-    glVertex3f(GROUND_LENGTH, -GROUND_WIDTH, 0)
-    glVertex3f(GROUND_LENGTH, GROUND_WIDTH, 0)
-    glVertex3f(-GROUND_LENGTH, GROUND_WIDTH, 0)
-    glEnd()
-
-# Border
-# Shop
+    # Tail
+    glPushMatrix()
+    glColor3f(*duck_dark_gray)
+    glTranslatef(0, -0.2, -2.0)
+    glRotatef(20, 1, 0, 0)
+    glScalef(1.8, 0.3, 2.4)
+    glutSolidCube(1.0)
+    glPopMatrix()
 
 
-#TODO - UI
-# Ammo count
-# Money display
-# Shop UI - numbers corresponding to items
-# Crosshair
-
-
-#TODO Implement game logic
-# Duck flying
-# Duck falling
-# Duck landed
-# Dog AI
-# Wolf AI
-# Rifle mechanics
-# Bullet mechanics
-# Border interactions
-# Shop interactions
-
-
-#TODO Controls
-
-def devDebug():
-    if not hasattr(devDebug, "last_print_time"):
-        devDebug.last_print_time = time.time()
-
-    current_time = time.time()
-    if current_time - devDebug.last_print_time >= 100.0:
-        x, y, z = PLAYER_X, PLAYER_Y, PLAYER_Z
-        print(
-            f"{glutGet(GLUT_ELAPSED_TIME)} : Player Currently At - X={x:.2f} Y={y:.2f} Z={z:.2f}"
-        )
-
-# camera
-def setupCamera():
-    glMatrixMode(GL_PROJECTION)  # Switch to projection matrix mode
-    glLoadIdentity()  # Reset the projection matrix
-    gluPerspective(FOV_Y, 16/9, 0.1, 2500) # Set up a perspective projection (field of view, aspect ratio, near clip, far clip)
-    glMatrixMode(GL_MODELVIEW)  # Switch to model-view matrix mode
-    glLoadIdentity()  # Reset the model-view matrix
-
-    #TODO camera position and orientation
-
-    gluLookAt(PLAYER_X, PLAYER_Y, PLAYER_Z,  # Camera position
-              PLAYER_X , PLAYER_Y +10, LOOK_Z,  # Look at point
-              0, 0, 1)  # Up vector
-    
-# display
-def showScreen():
+def display_scene():
+    """
+    Main display function.
+    """
+    global rotation_angle
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-    glClearColor(0, 0.9, 0.9, 0.5)
-    glLoadIdentity()  # Reset modelview matrix
-    glViewport(0, 0, 1280, 720)  # Set viewport size
+    glLoadIdentity()
+    
+    # Set up the camera position and orientation
+    gluLookAt(
+        0, 5, 10,
+        0, 0, 0,
+        0, 1, 0
+    )
 
-    #TODO setupCamera()
-    setupCamera()
-
+    # Apply continuous rotation to the entire duck
+    glRotatef(rotation_angle, 0, 1, 0)
+    
+    # Draw the duck model
     draw_duck()
 
-
-    # Display game info text at a fixed screen position
-    # draw_text(10, 770, f"A Random Fixed Position Text")
-    # draw_text(10, 740, f"See how the position and variable change?: {enemy_body_radius}")
     glutSwapBuffers()
 
-# idle
 def idle():
+    global rotation_angle, wing_flapping_angle
+    rotation_angle += 0.5
+    wing_flapping_angle += 5.0
+    if rotation_angle > 360:
+        rotation_angle -= 360
+    glutPostRedisplay()
 
-    #TODO update game state
-    devDebug()
+def reshape_window(w, h):
+    glViewport(0, 0, w, h)
+    glMatrixMode(GL_PROJECTION)
+    glLoadIdentity()
+    gluPerspective(45, w / h, 0.1, 100.0)
+    glMatrixMode(GL_MODELVIEW)
+    glLoadIdentity()
 
-    glutPostRedisplay()  # Request a redraw
-
-# main loop
 def main():
-    glutInit()
-    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH)  # Double buffering, RGB color, depth test
-    glutInitWindowSize(1280, 720)  # Window size
-    glutInitWindowPosition(0, 0)  # Window position
-    glutCreateWindow(b"Duck Season")  # Create the window
+    glutInit(sys.argv)
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH)
+    glutInitWindowSize(800, 600)
+    glutCreateWindow(b"Improved 3D Duck Drawing")
 
-    glutDisplayFunc(showScreen)  # Register display function
-    glutIdleFunc(idle)  # Register the idle function to move the bullet automatically
+    glEnable(GL_DEPTH_TEST)
 
-    glutMainLoop()  # Enter the GLUT main loop
+    glutDisplayFunc(display_scene)
+    glutReshapeFunc(reshape_window)
+    glutIdleFunc(idle)
+
+    glutMainLoop()
 
 if __name__ == "__main__":
     main()
