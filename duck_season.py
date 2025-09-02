@@ -75,7 +75,11 @@ def draw_duck(x, y, z, state):  #? x,y,z, (flying/falling/landed)
     if state == "flying":
         # Draw the duck in a flying position
         glColor3f(1.0, 1.0, 0.0)  # Yellow color for the duck
+        glPushMatrix()
+        glRotate(random.uniform(radians(0), radians(359)), 0, 0, 1)
         glutSolidSphere(5, 10, 10)  # Draw the duck's body
+        glPopMatrix()
+
     elif state == "falling":
         # Draw the duck in a falling position
         glColor3f(1.0, 0.0, 0.0)  # Red color for the duck
@@ -350,6 +354,8 @@ def idle():
         PLAYER_R += LOOK_DELTA_ANGLE    #? Update player rotation
         print(PLAYER_R)
         print("Aim Right")
+
+    
 
     #TODO update game state
     devDebug()
