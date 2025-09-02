@@ -8,20 +8,21 @@ CAM_X = 0
 CAM_Y = -100
 CAM_Z = 100
 
-LOOK_X = 200
+PLAYER_X = -100
+PLAYER_Y = -100
+PLAYER_Z = 25
+PLAYER_R = -90    #? Player rotation
+PLAYER_SPEED = 10
+
+LOOK_X = 0
 LOOK_Y = 200
 LOOK_Z = 25
 LOOK_SPEED_X = 10
 LOOK_SPEED_Z = 50
-LOOK_DELTA_ANGLE = 0.1
+LOOK_DELTA_ANGLE = 5
 
-PLAYER_X = -100
-PLAYER_Y = -100
-PLAYER_Z = 25
-PLAYER_SPEED = 10
-
-GROUND_LENGTH = 1000
-GROUND_WIDTH = 1000
+GROUND_X = 1000    #? half of ground length
+GROUND_Y = 1000     #? half of ground width
 
 SKYBOX_HEIGHT = 1000
 
@@ -31,6 +32,11 @@ TREE_LEAVES_RADIUS = 30
 TREE_LEAVES_HEIGHT = 50
 
 FOV_Y = 90
+
+MOVE_FORWARD = False
+MOVE_BACKWARD = False
+MOVE_LEFT = False
+MOVE_RIGHT = False
 
 AIM_LEFT = False
 AIM_RIGHT = False
@@ -91,10 +97,10 @@ def draw_tree(x,y):
 def draw_surface():
     glBegin(GL_QUADS)
     glColor3f(0.0, 1, 0.0)  # Green color for grass
-    glVertex3f(-GROUND_LENGTH, -GROUND_WIDTH, 0)
-    glVertex3f(GROUND_LENGTH, -GROUND_WIDTH, 0)
-    glVertex3f(GROUND_LENGTH, GROUND_WIDTH, 0)
-    glVertex3f(-GROUND_LENGTH, GROUND_WIDTH, 0)
+    glVertex3f(-GROUND_X, -GROUND_Y, 0)
+    glVertex3f(GROUND_X, -GROUND_Y, 0)
+    glVertex3f(GROUND_X, GROUND_Y, 0)
+    glVertex3f(-GROUND_X, GROUND_Y, 0)
     glEnd()
 
 #! Border
@@ -121,21 +127,69 @@ def draw_surface():
 
 #? saif kutta
 #TODO Controls
+def move_forward(): 
+    global PLAYER_X, PLAYER_Y, PLAYER_Z
+    move_x = PLAYER_X - (PLAYER_SPEED * cos(radians(PLAYER_R)))
+    move_y = PLAYER_Y - (PLAYER_SPEED * sin(radians(PLAYER_R)))
+    if -GROUND_X <= abs(move_x) <= GROUND_X:
+        PLAYER_X = move_x
+    if -GROUND_Y <= abs(move_y) <= GROUND_Y:
+        PLAYER_Y = move_y
+        print("move forward")
+        print(PLAYER_X, PLAYER_Y)
 
+def move_backward():
+    global PLAYER_X, PLAYER_Y, PLAYER_Z
+    move_x = PLAYER_X + (PLAYER_SPEED * cos(radians(PLAYER_R)))
+    move_y = PLAYER_Y + (PLAYER_SPEED * sin(radians(PLAYER_R)))
+    if -GROUND_X <= abs(move_x) <= GROUND_X:
+        PLAYER_X = move_x
+    if -GROUND_Y <= abs(move_y) <= GROUND_Y:
+        PLAYER_Y = move_y
+        print("move backward")
+        print(PLAYER_X, PLAYER_Y)
+
+def move_left():
+    global PLAYER_X, PLAYER_Y, PLAYER_Z
+    move_x = PLAYER_X - (PLAYER_SPEED * cos(radians(PLAYER_R + 90)))
+    move_y = PLAYER_Y - (PLAYER_SPEED * sin(radians(PLAYER_R + 90)))
+    if -GROUND_X <= abs(move_x) <= GROUND_X:
+        PLAYER_X = move_x
+    if -GROUND_Y <= abs(move_y) <= GROUND_Y:
+        PLAYER_Y = move_y
+        print("move left")
+        print(PLAYER_X, PLAYER_Y)
+
+def move_right():
+    global PLAYER_X, PLAYER_Y, PLAYER_Z
+    move_x = PLAYER_X + (PLAYER_SPEED * cos(radians(PLAYER_R + 90)))
+    move_y = PLAYER_Y + (PLAYER_SPEED * sin(radians(PLAYER_R + 90)))
+    if -GROUND_X <= abs(move_x) <= GROUND_X:
+        PLAYER_X = move_x
+    if -GROUND_Y <= abs(move_y) <= GROUND_Y:
+        PLAYER_Y = move_y
+        print("move right")
+        print(PLAYER_X, PLAYER_Y)
 
 #! Movement keys (WASD) + Shop menu (numbers)
 def keyboardListener(key, _x, _y):
     #TODO assign movement
     global PLAYER_X, PLAYER_Y, PLAYER_Z
     global LOOK_X, LOOK_Y, LOOK_Z
+    global MOVE_FORWARD, MOVE_BACKWARD, MOVE_LEFT, MOVE_RIGHT
+
     if key == b'w':
-        PLAYER_Y += 1 * PLAYER_SPEED
-    elif key == b's':
-        PLAYER_Y -= 1 * PLAYER_SPEED
-    elif key == b'a':
-        PLAYER_X -= 1 * PLAYER_SPEED
-    elif key == b'd':
-        PLAYER_X += 1 * PLAYER_SPEED
+        move_forward()
+    if key == b's':
+        move_backward()
+    if key == b'a':
+        move_left()
+    if key == b'd':
+        move_right()
+
+    if key == b' ':
+        # Shoot
+        print("Shoot")
 
     #TODO assign shop menu
 
@@ -147,11 +201,12 @@ def keyboardListener(key, _x, _y):
         pass
     elif key == b'4':
         pass
-# Look around (arrow keys)
+
+# 
 def specialKeyListener(key, _x, _y):
     # assign look around
     # global LOOK_X, LOOK_Y, LOOK_Z
-    # if key == GLUT_KEY_UP:
+    # if key == GLUT_KEY
     #     LOOK_Z += 1 * LOOK_SPEED
     # elif key == GLUT_KEY_DOWN:
     #     LOOK_Z -= 1 * LOOK_SPEED        
@@ -161,31 +216,32 @@ def specialKeyListener(key, _x, _y):
     #     LOOK_X += 1 * LOOK_SPEED
     pass
 
-# Shoot (mouse click)
+#* camera movement (mouse buttons)
 def mouseListener(button, state, _x, _y):
     #TODO assign shooting
     global LOOK_X, LOOK_Y, LOOK_Z
     global AIM_LEFT, AIM_RIGHT
+
     if button == 0 and state == GLUT_DOWN:
-        # *aim left
+        #* aim left
         AIM_LEFT = True
     if button == 0 and state == GLUT_UP:
         AIM_LEFT = False
 
     if button == 2 and state == GLUT_DOWN:
-        # *aim right
+        #* aim right
         AIM_RIGHT = True
     if button == 2 and state == GLUT_UP:
         AIM_RIGHT = False
 
     if button == 3 and state == GLUT_DOWN:
-        # aim up
+        #* aim up
         print("Aim Up")
         LOOK_Z = min(LOOK_Z + (1 * LOOK_SPEED_Z), SKYBOX_HEIGHT)
         pass
 
     if button == 4 and state == GLUT_DOWN:
-        # aim down
+        #* aim down
         print("Aim Down")
         LOOK_Z = max(LOOK_Z - (1 * LOOK_SPEED_Z), -SKYBOX_HEIGHT)
         pass
@@ -217,7 +273,7 @@ def setupCamera():
               PLAYER_X + LOOK_X , PLAYER_Y + LOOK_Y + 1, LOOK_Z,  # Look at point
               0, 0, 1)  # Up vector
     
-# display
+#* display function -> draw
 def showScreen():
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
     glClearColor(0, 0.9, 0.9, 0.5)
@@ -240,20 +296,26 @@ def showScreen():
     # draw_text(10, 740, f"See how the position and variable change?: {enemy_body_radius}")
     glutSwapBuffers()
 
-# idle
+#* idle function -> animate
 def idle():
     global LOOK_X, LOOK_Y, LOOK_Z
+    global PLAYER_X, PLAYER_Y, PLAYER_Z, PLAYER_R, PLAYER_SPEED
+    
+    #* Player aiming
     if AIM_LEFT:
-        _x = LOOK_X * cos(-LOOK_DELTA_ANGLE) - LOOK_Y * sin(-LOOK_DELTA_ANGLE)
-        _y = LOOK_X * sin(-LOOK_DELTA_ANGLE) + LOOK_Y * cos(-LOOK_DELTA_ANGLE)
-        LOOK_X, LOOK_Y = _x, _y
-        print(LOOK_X, LOOK_Y)
+        aim_x = LOOK_X * cos(radians(-LOOK_DELTA_ANGLE)) - LOOK_Y * sin(radians(-LOOK_DELTA_ANGLE))
+        aim_y = LOOK_X * sin(radians(-LOOK_DELTA_ANGLE)) + LOOK_Y * cos(radians(-LOOK_DELTA_ANGLE))
+        LOOK_X, LOOK_Y = aim_x, aim_y
+        PLAYER_R -= LOOK_DELTA_ANGLE    #? Update player rotation
+        print(PLAYER_R)
         print("Aim Left")
 
     if AIM_RIGHT:
-        _x = LOOK_X * cos(LOOK_DELTA_ANGLE) - LOOK_Y * sin(LOOK_DELTA_ANGLE)
-        _y = LOOK_X * sin(LOOK_DELTA_ANGLE) + LOOK_Y * cos(LOOK_DELTA_ANGLE)
-        LOOK_X, LOOK_Y = _x, _y     
+        aim_x = LOOK_X * cos(radians(LOOK_DELTA_ANGLE)) - LOOK_Y * sin(radians(LOOK_DELTA_ANGLE))
+        aim_y = LOOK_X * sin(radians(LOOK_DELTA_ANGLE)) + LOOK_Y * cos(radians(LOOK_DELTA_ANGLE))
+        LOOK_X, LOOK_Y = aim_x, aim_y
+        PLAYER_R += LOOK_DELTA_ANGLE    #? Update player rotation
+        print(PLAYER_R)
         print("Aim Right")
 
     #TODO update game state
