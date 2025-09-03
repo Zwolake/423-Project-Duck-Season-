@@ -216,3 +216,39 @@ class Shop:
         glPopMatrix()
         glMatrixMode(GL_MODELVIEW)
         glPopMatrix()
+
+
+hud = HUD()
+shop = Shop(hud=hud)   # link shop with HUD
+
+#keyboard input
+def keyboard(key, x, y):
+    global shop, hud
+
+    # toggle shop
+    if key == b'b' or key == b'B':
+        shop.toggle()
+
+    # if shop is active, handle shop purchases
+    if shop.active:
+        shop.purchase(key.decode("utf-8").upper(), hud)
+
+#render shop 
+def display():
+    global hud, shop
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+    
+    # draw 3D world (ducks, environment, gun, etc.)
+
+    # draw HUD
+    hud.render(window_width, window_height)
+
+    # draw Shop overlay (if active)
+    shop.render(window_width, window_height)
+
+    glutSwapBuffers()
+
+def update():
+    global shop, hud
+    shop.update_effects(hud)   # expire timed boosts if needed
+    glutPostRedisplay()
