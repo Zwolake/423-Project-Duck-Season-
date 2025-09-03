@@ -666,7 +666,17 @@ def keyboardListener(key, _x, _y):
         pass
     elif key == b'4':
         pass
+#kafi
+def keyboard(key, x, y):
+    global shop, hud
 
+    # toggle shop
+    if key == b'b' or key == b'B':
+        shop.toggle()
+
+    # if shop is active, handle shop purchases
+    if shop.active:
+        shop.purchase(key.decode("utf-8").upper(), hud)
 # 
 def specialKeyListener(key, _x, _y):
     # assign look around
@@ -739,6 +749,22 @@ def setupCamera():
               0, 0, 1)  # Up vector
     
 #* display function -> draw
+#kafi: 
+#render shop 
+def display():
+    global hud, shop
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+    
+    # draw 3D world (ducks, environment, gun, etc.)
+
+    # draw HUD
+    hud.render(window_width, window_height)
+
+    # draw Shop overlay (if active)
+    shop.render(window_width, window_height)
+
+    glutSwapBuffers()
+
 def showScreen():
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
     glClearColor(0, 0.9, 0.9, 0.5)
@@ -790,6 +816,12 @@ def idle():
         PLAYER_R -= LOOK_DELTA_ANGLE    #? Update player rotation
         print(PLAYER_R)
         print("Aim Right")
+
+    def update():
+    global shop, hud
+    shop.update_effects(hud)   # expire timed boosts if needed
+    glutPostRedisplay()
+
 
 
     # -------- Duck animation --------- #
@@ -1065,6 +1097,9 @@ class HUD:
         self.achievements = []
         self.active_achievements = []
 #HUD END
+#kafi
+hud = HUD()
+shop = Shop(hud=hud) 
 
 # main loop
 def main():
