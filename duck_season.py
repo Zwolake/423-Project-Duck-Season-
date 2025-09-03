@@ -19,14 +19,14 @@ PLAYER_X = -100
 PLAYER_Y = -100
 PLAYER_Z = 25
 PLAYER_R = -90    #? Player rotation
-PLAYER_SPEED = 10
+PLAYER_SPEED = 2.5
 
 LOOK_X = 0
 LOOK_Y = 200
 LOOK_Z = 25
-LOOK_SPEED_X = 10
-LOOK_SPEED_Z = 50
-LOOK_DELTA_ANGLE = 5
+# LOOK_SPEED_X = 10
+LOOK_SPEED_Z = 20
+LOOK_DELTA_ANGLE = 2.5
 
 GROUND_X = 1000    #? half of ground length
 GROUND_Y = 1000     #? half of ground width
@@ -40,6 +40,8 @@ TREE_LEAVES_HEIGHT = 50
 
 FOV_Y = 90
 
+BUTTONS = {'w':False, 's':False, 'a':False, 'd':False}
+
 MOVE_FORWARD = False
 MOVE_BACKWARD = False
 MOVE_LEFT = False
@@ -49,12 +51,8 @@ AIM_LEFT = False
 AIM_RIGHT = False
 
 DUCK_COUNT = 20
-DUCK_FLYING_Z = 500
-DUCKS = [[random.uniform(-500, 500),
-          random.uniform(-500, 500), 
-          random.uniform(DUCK_FLYING_Z + DUCK_FLYING_Z/4, 
-                         DUCK_FLYING_Z - DUCK_FLYING_Z/4)]
-          for _ in range(DUCK_COUNT)]
+DUCK_FLYING_Z = 5
+DUCKS = []
 
 # Color Variables
 duck_light_gray = (0.7, 0.7, 0.7)
@@ -84,6 +82,9 @@ class Duck:
             glRotatef(90, 1, 0, 0)
 
         # Body
+        glPushMatrix()
+        glTranslate(*self.position)
+
         glPushMatrix()
         glColor3f(*duck_light_gray)
         glScalef(1.5, 1, 2.5)
@@ -180,6 +181,8 @@ class Duck:
         glPopMatrix()
         glPopMatrix()
 
+        glPopMatrix()
+
     def drop_duck(self):
 
         '''If bullet hits the duck, the state changes into falling.
@@ -207,31 +210,31 @@ class Duck:
 
 
 #* draw_duck placeholder
-def draw_duck(x, y, z, state):  #? x,y,z, (flying/falling/landed)
-    glPushMatrix()
-    glTranslatef(x, y, z)
+# def draw_duck(x, y, z, state):  #? x,y,z, (flying/falling/landed)
+#     glPushMatrix()
+#     glTranslatef(x, y, z)
 
-    if state == "flying":
-        # Draw the duck in a flying position
-        glColor3f(1.0, 1.0, 0.0)  # Yellow color for the duck
-        glPushMatrix()
-        glRotate(random.uniform(radians(0), radians(359)), 0, 0, 1)
-        glutSolidSphere(5, 10, 10)  # Draw the duck's body
-        glPopMatrix()
+#     if state == "flying":
+#         # Draw the duck in a flying position
+#         glColor3f(1.0, 1.0, 0.0)  # Yellow color for the duck
+#         glPushMatrix()
+#         glRotate(random.uniform(radians(0), radians(359)), 0, 0, 1)
+#         glutSolidSphere(5, 10, 10)  # Draw the duck's body
+#         glPopMatrix()
 
-    elif state == "falling":
-        # Draw the duck in a falling position
-        glColor3f(1.0, 0.0, 0.0)  # Red color for the duck
-        glutSolidSphere(5, 10, 10)  # Draw the duck's body
-    elif state == "landed":
-        # Draw the duck in a landed position
-        glColor3f(0.0, 0.0, 0.0)  # Black color for the duck
-        glutSolidSphere(5, 10, 10)  # Draw the duck's body
+#     elif state == "falling":
+#         # Draw the duck in a falling position
+#         glColor3f(1.0, 0.0, 0.0)  # Red color for the duck
+#         glutSolidSphere(5, 10, 10)  # Draw the duck's body
+#     elif state == "landed":
+#         # Draw the duck in a landed position
+#         glColor3f(0.0, 0.0, 0.0)  # Black color for the duck
+#         glutSolidSphere(5, 10, 10)  # Draw the duck's body
 
-    glPopMatrix()
+#     glPopMatrix()
 
-# Dog(?)
-# Wolves(?)
+#! Dog(?)
+#! Wolves(?)
 #! Rifle
 #! Bullet
 #* Tree
@@ -286,8 +289,8 @@ def draw_surface():
 #! Duck flying
 #! Duck falling
 #! Duck landed
-# Dog AI
-# Wolf AI
+#! Dog AI
+#! Wolf AI
 #! Rifle mechanics
 #! Bullet mechanics
 #! Border interactions
@@ -345,20 +348,21 @@ def keyboardListener(key, _x, _y):
     global PLAYER_X, PLAYER_Y, PLAYER_Z
     global LOOK_X, LOOK_Y, LOOK_Z
     global MOVE_FORWARD, MOVE_BACKWARD, MOVE_LEFT, MOVE_RIGHT
+    global BUTTONS
 
     if key == b'w':
-        move_forward()
+        BUTTONS['w']=True
     if key == b's':
-        move_backward()
+        BUTTONS['s']=True
     if key == b'a':
-        move_left()
+        BUTTONS['a']=True
     if key == b'd':
-        move_right()
+        BUTTONS['d']=True
 
     if key == b' ':
         # Shoot
         print("Shoot")
-
+    
     #TODO assign shop menu
 
     if key == b'1':
@@ -369,6 +373,16 @@ def keyboardListener(key, _x, _y):
         pass
     elif key == b'4':
         pass
+
+def keyboardUpListener(key, _x, _y):
+    if key == b'w':
+        BUTTONS['w']=False
+    if key == b's':
+        BUTTONS['s']=False
+    if key == b'a':
+        BUTTONS['a']=False
+    if key == b'd':
+        BUTTONS['d']=False
 
 # 
 def specialKeyListener(key, _x, _y):
@@ -455,12 +469,16 @@ def showScreen():
     draw_surface()
     draw_tree(0, 0)
 
+    if len(DUCKS) < DUCK_COUNT: #? spawns DUCK_COUNT amount of ducks
+        DUCKS.append(Duck(  random.uniform(-500, 500),
+                            random.uniform(-500, 500), 
+                            random.uniform( DUCK_FLYING_Z + DUCK_FLYING_Z/4, 
+                                            DUCK_FLYING_Z - DUCK_FLYING_Z/4)))
+        
     for duck in DUCKS:
-        x = duck[0]
-        y = duck[1]
-        z = duck[2]
+        duck.draw_duck()
         state = "flying"
-        draw_duck(x, y, z, state)
+        #draw_duck(x, y, z, state)
 
     glPushMatrix()
     glTranslatef(0, 0, 1000)
@@ -476,6 +494,16 @@ def showScreen():
 def idle():
     global LOOK_X, LOOK_Y, LOOK_Z
     global PLAYER_X, PLAYER_Y, PLAYER_Z, PLAYER_R, PLAYER_SPEED
+
+    #* Player movement
+    if BUTTONS['w']:
+        move_forward()
+    if BUTTONS['s']:
+        move_backward()
+    if BUTTONS['a']:
+        move_left()
+    if BUTTONS['d']:
+        move_right()
     
     #* Player aiming
     if AIM_LEFT:
@@ -496,10 +524,10 @@ def idle():
 
 
     # -------- Duck animation --------- #
-    global ducks
-    for d in ducks:
-        if d.state == 'flying':
-            d.wing_angle += 5.0
+    # global ducks
+    # for d in ducks:
+    #     if d.state == 'flying':
+    #         d.wing_angle += 5.0
     # ---------------------------------- #
 
     #TODO update game state
@@ -517,6 +545,7 @@ def main():
 
     glutDisplayFunc(showScreen)  # Register display function
     glutKeyboardFunc(keyboardListener)  # Register keyboard listener
+    glutKeyboardUpFunc(keyboardUpListener)  # Register keyboard up listener
     glutSpecialFunc(specialKeyListener)
     glutMouseFunc(mouseListener)
     glutIdleFunc(idle)  # Register the idle function to move the bullet automatically
