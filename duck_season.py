@@ -23,6 +23,7 @@ PLAYER_SPEED = 2.5
 
 LOOK_X = 0
 LOOK_Y = 200
+I_LOOK_Z = 25
 LOOK_Z = 25
 # LOOK_SPEED_X = 10
 LOOK_SPEED_Z = 20
@@ -50,8 +51,10 @@ MOVE_RIGHT = False
 AIM_LEFT = False
 AIM_RIGHT = False
 
-DUCK_COUNT = 20
+DUCK_COUNT = 1
 DUCK_FLYING_Z = 5
+DUCK_WING_SPEED = 10
+DUCK_SPEED = 10
 DUCKS = []
 
 # Color Variables
@@ -64,8 +67,9 @@ eye_black = (0.0, 0.0, 0.0)
 
 #TODO - GameObjects
 class Duck:
-    def __init__(self, x, y, z):
-        self.position = (x, y, z)
+    def __init__(self, x, y, z, r):
+        self.position = [x, y, z]
+        self.rotation = r
         self.wing_flapping_angle = 0
         self.state = 'flying'
         self.wing_angle = 0.0
@@ -75,6 +79,12 @@ class Duck:
         global duck_dark_gray, duck_light_gray, duck_med_gray, duck_medium_gray, eye_black
 
         glPushMatrix()
+        glTranslate(*self.position)
+        dim = 10
+        glScalef(dim, dim, dim)
+        glRotate(90, 1, 0, 0)
+        glRotate(self.rotation, 0, 1, 0)
+
         if self.state == 'dead':
             glRotatef(180, 1, 0, 0)
         
@@ -82,10 +92,6 @@ class Duck:
             glRotatef(90, 1, 0, 0)
 
         # Body
-        glPushMatrix()
-        glTranslate(*self.position)
-        glRotate(90, 1, 0, 0)
-
         glPushMatrix()
         glColor3f(*duck_light_gray)
         glScalef(1.5, 1, 2.5)
@@ -180,8 +186,7 @@ class Duck:
         glScalef(1.8, 0.3, 2.4)
         glutSolidCube(1.0)
         glPopMatrix()
-        glPopMatrix()
-
+        
         glPopMatrix()
 
     def drop_duck(self):
@@ -299,7 +304,7 @@ def draw_surface():
 
 #? saif kutta
 #TODO Controls
-def move_forward(): 
+def move_forward():
     global PLAYER_X, PLAYER_Y, PLAYER_Z
     move_x = PLAYER_X - (PLAYER_SPEED * cos(radians(PLAYER_R)))
     move_y = PLAYER_Y - (PLAYER_SPEED * sin(radians(PLAYER_R)))
@@ -307,8 +312,8 @@ def move_forward():
         PLAYER_X = move_x
     if -GROUND_Y <= abs(move_y) <= GROUND_Y:
         PLAYER_Y = move_y
-        print("move forward")
-        print(PLAYER_X, PLAYER_Y)
+        # print("move forward")
+        # print(PLAYER_X, PLAYER_Y)
 
 def move_backward():
     global PLAYER_X, PLAYER_Y, PLAYER_Z
@@ -318,8 +323,8 @@ def move_backward():
         PLAYER_X = move_x
     if -GROUND_Y <= abs(move_y) <= GROUND_Y:
         PLAYER_Y = move_y
-        print("move backward")
-        print(PLAYER_X, PLAYER_Y)
+        # print("move backward")
+        # print(PLAYER_X, PLAYER_Y)
 
 def move_left():
     global PLAYER_X, PLAYER_Y, PLAYER_Z
@@ -329,8 +334,8 @@ def move_left():
         PLAYER_X = move_x
     if -GROUND_Y <= abs(move_y) <= GROUND_Y:
         PLAYER_Y = move_y
-        print("move left")
-        print(PLAYER_X, PLAYER_Y)
+        # print("move left")
+        # print(PLAYER_X, PLAYER_Y)
 
 def move_right():
     global PLAYER_X, PLAYER_Y, PLAYER_Z
@@ -340,8 +345,8 @@ def move_right():
         PLAYER_X = move_x
     if -GROUND_Y <= abs(move_y) <= GROUND_Y:
         PLAYER_Y = move_y
-        print("move right")
-        print(PLAYER_X, PLAYER_Y)
+        # print("move right")
+        # print(PLAYER_X, PLAYER_Y)
 
 #! Movement keys (WASD) + Shop menu (numbers)
 def keyboardListener(key, _x, _y):
@@ -419,13 +424,13 @@ def mouseListener(button, state, _x, _y):
 
     if button == 3 and state == GLUT_DOWN:
         #* aim up
-        print("Aim Up")
+        # print("Aim Up")
         LOOK_Z = min(LOOK_Z + (1 * LOOK_SPEED_Z), SKYBOX_HEIGHT)
         pass
 
     if button == 4 and state == GLUT_DOWN:
         #* aim down
-        print("Aim Down")
+        # print("Aim Down")
         LOOK_Z = max(LOOK_Z - (1 * LOOK_SPEED_Z), -SKYBOX_HEIGHT)
         pass
 
@@ -458,6 +463,7 @@ def setupCamera():
     
 #* display function -> draw
 def showScreen():
+    glEnable(GL_DEPTH_TEST)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
     glClearColor(0, 0.9, 0.9, 0.5)
     glLoadIdentity()  # Reset modelview matrix
@@ -474,7 +480,8 @@ def showScreen():
         DUCKS.append(Duck(  random.uniform(-500, 500),
                             random.uniform(-500, 500), 
                             random.uniform( DUCK_FLYING_Z + DUCK_FLYING_Z/4, 
-                                            DUCK_FLYING_Z - DUCK_FLYING_Z/4)))
+                                            DUCK_FLYING_Z - DUCK_FLYING_Z/4),
+                            random.uniform(0, 359)))
         
     for duck in DUCKS:
         duck.draw_duck()
@@ -512,27 +519,38 @@ def idle():
         aim_y = LOOK_X * sin(radians(LOOK_DELTA_ANGLE)) + LOOK_Y * cos(radians(LOOK_DELTA_ANGLE))
         LOOK_X, LOOK_Y = aim_x, aim_y
         PLAYER_R += LOOK_DELTA_ANGLE    #? Update player rotation
-        print(PLAYER_R)
-        print("Aim Left")
+        # print(PLAYER_R)
+        # print("Aim Left")
 
     if AIM_RIGHT:
         aim_x = LOOK_X * cos(radians(-LOOK_DELTA_ANGLE)) - LOOK_Y * sin(radians(-LOOK_DELTA_ANGLE))
         aim_y = LOOK_X * sin(radians(-LOOK_DELTA_ANGLE)) + LOOK_Y * cos(radians(-LOOK_DELTA_ANGLE))
         LOOK_X, LOOK_Y = aim_x, aim_y
         PLAYER_R -= LOOK_DELTA_ANGLE    #? Update player rotation
-        print(PLAYER_R)
-        print("Aim Right")
+        # print(PLAYER_R)
+        # print("Aim Right")
 
 
     # -------- Duck animation --------- #
-    # global ducks
-    # for d in ducks:
-    #     if d.state == 'flying':
-    #         d.wing_angle += 5.0
+    for duck in DUCKS:
+        if duck.state == 'flying':
+            duck.wing_angle += DUCK_WING_SPEED
+            _x = duck.position[0] - (DUCK_SPEED * cos(radians(duck.rotation+90))) 
+            _y = duck.position[1] - (DUCK_SPEED * sin(radians(duck.rotation+90)))
+            if abs(_x) > GROUND_X:
+                print('a')
+                _x *= -1
+            if abs(_y) > GROUND_Y:
+                print('b')
+                _y *= -1
+            duck.position[0], duck.position[1] = _x, _y
+            print(duck.position[0], duck.position[1])
     # ---------------------------------- #
 
+    
+
     #TODO update game state
-    devDebug()
+    # devDebug()
 
     glutPostRedisplay()  # Request a redraw
 
