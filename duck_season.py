@@ -84,6 +84,7 @@ class Duck:
         # Body
         glPushMatrix()
         glTranslate(*self.position)
+        glRotate(90, 1, 0, 0)
 
         glPushMatrix()
         glColor3f(*duck_light_gray)
