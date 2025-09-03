@@ -19,14 +19,14 @@ PLAYER_X = -100
 PLAYER_Y = -100
 PLAYER_Z = 25
 PLAYER_R = -90    #? Player rotation
-PLAYER_SPEED = 10
+PLAYER_SPEED = 2.5
 
 LOOK_X = 0
 LOOK_Y = 200
 LOOK_Z = 25
-LOOK_SPEED_X = 10
-LOOK_SPEED_Z = 50
-LOOK_DELTA_ANGLE = 5
+# LOOK_SPEED_X = 10
+LOOK_SPEED_Z = 20
+LOOK_DELTA_ANGLE = 2.5
 
 GROUND_X = 1000    #? half of ground length
 GROUND_Y = 1000     #? half of ground width
@@ -40,6 +40,8 @@ TREE_LEAVES_HEIGHT = 50
 
 FOV_Y = 90
 
+BUTTONS = {'w':False, 's':False, 'a':False, 'd':False}
+
 MOVE_FORWARD = False
 MOVE_BACKWARD = False
 MOVE_LEFT = False
@@ -49,12 +51,8 @@ AIM_LEFT = False
 AIM_RIGHT = False
 
 DUCK_COUNT = 20
-DUCK_FLYING_Z = 500
-DUCKS = [[random.uniform(-500, 500),
-          random.uniform(-500, 500), 
-          random.uniform(DUCK_FLYING_Z + DUCK_FLYING_Z/4, 
-                         DUCK_FLYING_Z - DUCK_FLYING_Z/4)]
-          for _ in range(DUCK_COUNT)]
+DUCK_FLYING_Z = 5
+DUCKS = []
 
 # Color Variables
 duck_light_gray = (0.7, 0.7, 0.7)
@@ -62,6 +60,8 @@ duck_med_gray = (0.6, 0.6, 0.6)
 duck_medium_gray = (0.5, 0.5, 0.5)
 duck_dark_gray = (0.3, 0.3, 0.3)
 eye_black = (0.0, 0.0, 0.0)
+duck_scale = 1.0
+
 
 # Gun Color Variables
 gun_brown = (0.35, 0.15, 0.0) 
@@ -92,8 +92,12 @@ class Duck:
 
         # Body
         glPushMatrix()
+        glTranslate(*self.position)
+        glRotate(90, 1, 0, 0)
+
+        glPushMatrix()
         glColor3f(*duck_light_gray)
-        glScalef(1.5, 1, 2.5)
+        glScalef(duck_scale * 1.5, duck_scale * 1, duck_scale * 2.5)
         glTranslatef(0, 0, 0)
         glutSolidCube(1.5)
         glPopMatrix()
@@ -101,7 +105,7 @@ class Duck:
         # Neck
         glPushMatrix()
         glColor3f(*duck_dark_gray)
-        glScalef(0.7, 0.5, 0.7)
+        glScalef(duck_scale * 0.7, duck_scale * 0.5, duck_scale * 0.7)
         glTranslatef(0, 0.6, 3)
         glutSolidCube(1.0)
         glPopMatrix()
@@ -109,7 +113,7 @@ class Duck:
         # Head
         glPushMatrix()
         glColor3f(*duck_med_gray)
-        glScalef(1.1, 1.0, 1.0)
+        glScalef(duck_scale * 1.1, duck_scale * 1.0, duck_scale * 1.0)
         glTranslatef(0, 0.4, 2.8)
         glutSolidCube(1.0)
         glPopMatrix()
@@ -117,7 +121,7 @@ class Duck:
         # Beak
         glPushMatrix()
         glColor3f(*duck_dark_gray)
-        glScalef(0.6, 0.2, 0.5)
+        glScalef(duck_scale * 0.6, duck_scale * 0.2, duck_scale * 0.5)
         glTranslatef(0, 0.6, 6.7)
         glutSolidCube(1)
         glPopMatrix()
@@ -125,7 +129,7 @@ class Duck:
         # Left eye
         glPushMatrix()
         glColor3f(*eye_black)
-        glScalef(0.2, 0.2, 0.2)
+        glScalef(duck_scale * 0.2, duck_scale * 0.2, duck_scale * 0.2)
         glTranslatef(-2.5, 3.6, 15.0)
         glutSolidCube(1.0)
         glPopMatrix()
@@ -133,7 +137,7 @@ class Duck:
         # Right eye
         glPushMatrix()
         glColor3f(*eye_black)
-        glScalef(0.2, 0.2, 0.2)
+        glScalef(duck_scale * 0.2, duck_scale * 0.2, duck_scale * 0.2)
         glTranslatef(2.5, 3.6, 15.0)
         glutSolidCube(1.0)
         glPopMatrix()
@@ -147,7 +151,7 @@ class Duck:
         glTranslatef(-1.5, 0.4, 0.0)
         if self.state == 'flying':
             glRotatef(self.wing_delta - 30, 0, 0, 1)
-        glScalef(1.9, 0.2, 1.0)
+        glScalef(duck_scale * 1.9, duck_scale * 0.2, duck_scale * 1.0)
         glutSolidCube(1.5)
         glPopMatrix()
 
@@ -157,14 +161,14 @@ class Duck:
         glTranslatef(1.7, 0.4, 0.0)
         if self.state == 'flying':
             glRotatef(-self.wing_delta + 30, 0, 0, 1)
-        glScalef(1.9, 0.2, 1.0)
+        glScalef(duck_scale * 1.9, duck_scale * 0.2, duck_scale * 1.0)
         glutSolidCube(1.5)
         glPopMatrix()
 
         # Left leg
         glPushMatrix()
         glColor3f(*duck_dark_gray)
-        glScalef(0.3, 1.0, 0.3)
+        glScalef(duck_scale * 0.3, duck_scale * 1.0, duck_scale * 0.3)
         glTranslatef(-2.0, -1.2, -1.0)
         glutSolidCube(1.0)
         glPopMatrix()
@@ -172,7 +176,7 @@ class Duck:
         # Right leg
         glPushMatrix()
         glColor3f(*duck_dark_gray)
-        glScalef(0.3, 1.0, 0.3)
+        glScalef(duck_scale * 0.3, duck_scale * 1.0, duck_scale * 0.3)
         glTranslatef(2.0, -1.2, -1.0)
         glutSolidCube(1.0)
         glPopMatrix()
@@ -182,9 +186,11 @@ class Duck:
         glColor3f(*duck_dark_gray)
         glTranslatef(0, -0.2, -2.0)
         glRotatef(20, 1, 0, 0)
-        glScalef(1.8, 0.3, 2.4)
+        glScalef(duck_scale * 1.8, duck_scale * 0.3, duck_scale * 2.4)
         glutSolidCube(1.0)
         glPopMatrix()
+        glPopMatrix()
+
         glPopMatrix()
 
     def drop_duck(self):
@@ -214,31 +220,31 @@ class Duck:
 
 
 #* draw_duck placeholder
-def draw_duck(x, y, z, state):  #? x,y,z, (flying/falling/landed)
-    glPushMatrix()
-    glTranslatef(x, y, z)
+# def draw_duck(x, y, z, state):  #? x,y,z, (flying/falling/landed)
+#     glPushMatrix()
+#     glTranslatef(x, y, z)
 
-    if state == "flying":
-        # Draw the duck in a flying position
-        glColor3f(1.0, 1.0, 0.0)  # Yellow color for the duck
-        glPushMatrix()
-        glRotate(random.uniform(radians(0), radians(359)), 0, 0, 1)
-        glutSolidSphere(5, 10, 10)  # Draw the duck's body
-        glPopMatrix()
+#     if state == "flying":
+#         # Draw the duck in a flying position
+#         glColor3f(1.0, 1.0, 0.0)  # Yellow color for the duck
+#         glPushMatrix()
+#         glRotate(random.uniform(radians(0), radians(359)), 0, 0, 1)
+#         glutSolidSphere(5, 10, 10)  # Draw the duck's body
+#         glPopMatrix()
 
-    elif state == "falling":
-        # Draw the duck in a falling position
-        glColor3f(1.0, 0.0, 0.0)  # Red color for the duck
-        glutSolidSphere(5, 10, 10)  # Draw the duck's body
-    elif state == "landed":
-        # Draw the duck in a landed position
-        glColor3f(0.0, 0.0, 0.0)  # Black color for the duck
-        glutSolidSphere(5, 10, 10)  # Draw the duck's body
+#     elif state == "falling":
+#         # Draw the duck in a falling position
+#         glColor3f(1.0, 0.0, 0.0)  # Red color for the duck
+#         glutSolidSphere(5, 10, 10)  # Draw the duck's body
+#     elif state == "landed":
+#         # Draw the duck in a landed position
+#         glColor3f(0.0, 0.0, 0.0)  # Black color for the duck
+#         glutSolidSphere(5, 10, 10)  # Draw the duck's body
 
-    glPopMatrix()
+#     glPopMatrix()
 
-# Dog(?)
-# Wolves(?)
+#! DOGS
+#! WOLVES
 
 #! Rifle
 def draw_shotgun_model():
@@ -583,8 +589,8 @@ class Shop:
 #! Duck flying
 #! Duck falling
 #! Duck landed
-# Dog AI
-# Wolf AI
+#! Dog AI
+#! Wolf AI
 #! Rifle mechanics
 #! Bullet mechanics
 #! Border interactions
@@ -642,20 +648,21 @@ def keyboardListener(key, _x, _y):
     global PLAYER_X, PLAYER_Y, PLAYER_Z
     global LOOK_X, LOOK_Y, LOOK_Z
     global MOVE_FORWARD, MOVE_BACKWARD, MOVE_LEFT, MOVE_RIGHT
+    global BUTTONS
 
     if key == b'w':
-        move_forward()
+        BUTTONS['w']=True
     if key == b's':
-        move_backward()
+        BUTTONS['s']=True
     if key == b'a':
-        move_left()
+        BUTTONS['a']=True
     if key == b'd':
-        move_right()
+        BUTTONS['d']=True
 
     if key == b' ':
         # Shoot
         print("Shoot")
-
+    
     #TODO assign shop menu
 
     if key == b'1':
@@ -666,6 +673,16 @@ def keyboardListener(key, _x, _y):
         pass
     elif key == b'4':
         pass
+
+def keyboardUpListener(key, _x, _y):
+    if key == b'w':
+        BUTTONS['w']=False
+    if key == b's':
+        BUTTONS['s']=False
+    if key == b'a':
+        BUTTONS['a']=False
+    if key == b'd':
+        BUTTONS['d']=False
 
 # 
 def specialKeyListener(key, _x, _y):
@@ -752,12 +769,16 @@ def showScreen():
     draw_surface()
     draw_tree(0, 0)
 
+    if len(DUCKS) < DUCK_COUNT: #? spawns DUCK_COUNT amount of ducks
+        DUCKS.append(Duck(  random.uniform(-500, 500),
+                            random.uniform(-500, 500), 
+                            random.uniform( DUCK_FLYING_Z + DUCK_FLYING_Z/4, 
+                                            DUCK_FLYING_Z - DUCK_FLYING_Z/4)))
+        
     for duck in DUCKS:
-        x = duck[0]
-        y = duck[1]
-        z = duck[2]
+        duck.draw_duck()
         state = "flying"
-        draw_duck(x, y, z, state)
+        #draw_duck(x, y, z, state)
 
     glPushMatrix()
     glTranslatef(0, 0, 1000)
@@ -773,6 +794,16 @@ def showScreen():
 def idle():
     global LOOK_X, LOOK_Y, LOOK_Z
     global PLAYER_X, PLAYER_Y, PLAYER_Z, PLAYER_R, PLAYER_SPEED
+
+    #* Player movement
+    if BUTTONS['w']:
+        move_forward()
+    if BUTTONS['s']:
+        move_backward()
+    if BUTTONS['a']:
+        move_left()
+    if BUTTONS['d']:
+        move_right()
     
     #* Player aiming
     if AIM_LEFT:
@@ -1076,6 +1107,7 @@ def main():
 
     glutDisplayFunc(showScreen)  # Register display function
     glutKeyboardFunc(keyboardListener)  # Register keyboard listener
+    glutKeyboardUpFunc(keyboardUpListener)  # Register keyboard up listener
     glutSpecialFunc(specialKeyListener)
     glutMouseFunc(mouseListener)
     glutIdleFunc(idle)  # Register the idle function to move the bullet automatically
