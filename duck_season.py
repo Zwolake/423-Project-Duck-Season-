@@ -1,6 +1,7 @@
 #* libraries
 from OpenGL.GL import *
 from OpenGL.GLUT import *
+from OpenGL.GLUT import GLUT_BITMAP_HELVETICA_18
 from OpenGL.GLU import *
 from math import *
 import random
@@ -60,7 +61,10 @@ duck_med_gray = (0.6, 0.6, 0.6)
 duck_medium_gray = (0.5, 0.5, 0.5)
 duck_dark_gray = (0.3, 0.3, 0.3)
 eye_black = (0.0, 0.0, 0.0)
+
+'''Change these to scale the duck and gun'''
 duck_scale = 1.0
+gun_scale = 1.0
 
 
 # Gun Color Variables
@@ -81,7 +85,7 @@ class Duck:
 
 
     def draw_duck(self):
-        global duck_dark_gray, duck_light_gray, duck_med_gray, duck_medium_gray, eye_black
+        global duck_dark_gray, duck_light_gray, duck_med_gray, duck_medium_gray, eye_black, duck_scale
 
         glPushMatrix()
         if self.state == 'dead':
@@ -248,11 +252,12 @@ class Duck:
 
 #! Rifle
 def draw_shotgun_model():
+    global gun_brown, gun_dark_brown, gun_black, gun_scale
     # Stock (main wooden part)
     glPushMatrix()
     glColor3f(*gun_brown)
     glTranslatef(0.3, -0.3, 1.9)
-    glScalef(0.4, 0.8, 2.0)
+    glScalef(gun_scale * 0.4, gun_scale * 0.8, gun_scale * 2.0)
     glRotate(20, 1, 0, 0)
     glutSolidCube(1.0)
     glPopMatrix()
@@ -261,7 +266,7 @@ def draw_shotgun_model():
     glPushMatrix()
     glColor3f(*gun_black)
     glTranslatef(0.3, -0.2, 0.7)
-    glScalef(0.5, 0.8, 1.3)
+    glScalef(gun_scale * 0.5, gun_scale * 0.8, gun_scale * 1.3)
     glutSolidCube(1.0)
     glPopMatrix()
     
@@ -269,7 +274,7 @@ def draw_shotgun_model():
     glPushMatrix()
     glColor3f(*gun_black)
     glTranslatef(0.25, -0.48, 0.0)
-    glScalef(0.5, 1.2, 0.5)
+    glScalef(gun_scale * 0.5, gun_scale * 1.2, gun_scale * 0.5)
     glutSolidCube(1.0)
     glPopMatrix()
 
@@ -277,7 +282,7 @@ def draw_shotgun_model():
     glPushMatrix()
     glColor3f(*gun_black)
     glTranslatef(0.3, -0.5, -0.5)
-    glScalef(0.4, 0.4, 0.2)
+    glScalef(gun_scale * 0.4, gun_scale * 0.4, gun_scale * 0.2)
     glutSolidCube(1.0)
     glPopMatrix()
     
@@ -285,7 +290,7 @@ def draw_shotgun_model():
     glPushMatrix()
     glColor3f(*gun_dark_brown)
     glTranslatef(0.25, -0.15, -1.0)
-    glScalef(1.0, 0.5, 1.8)
+    glScalef(gun_scale * 1.0, gun_scale * 0.5, gun_scale * 1.8)
     glutSolidCube(1.0)
     glPopMatrix()
     
@@ -293,7 +298,7 @@ def draw_shotgun_model():
     glPushMatrix()
     glColor3f(*gun_black)
     glTranslatef(0.25, -0.3, -1.5)
-    glScalef(0.4, 0.4, 3.0)
+    glScalef(gun_scale * 0.4, gun_scale * 0.4, gun_scale * 3.0)
     glutSolidCube(1.0)
     glPopMatrix()
     
@@ -301,7 +306,7 @@ def draw_shotgun_model():
     glPushMatrix()
     glColor3f(*gun_black)
     glTranslatef(0.25, 0.1, -2.5)
-    glScalef(0.4, 0.4, 4.0)
+    glScalef(gun_scale * 0.4, gun_scale * 0.4, gun_scale * 4.0)
     glutSolidCube(1.0)
     glPopMatrix()
     
@@ -309,7 +314,7 @@ def draw_shotgun_model():
     glPushMatrix()
     glColor3f(*gun_black)
     glTranslatef(0.25, 0.3, -4.3)
-    glScalef(0.1, 0.2, 0.2)
+    glScalef(gun_scale * 0.1, gun_scale * 0.2, gun_scale * 0.2)
     glutSolidCube(1.0)
     glPopMatrix()
 
