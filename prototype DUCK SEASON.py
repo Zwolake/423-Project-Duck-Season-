@@ -609,6 +609,14 @@ class Game:
 
         self.initialize_game()
 
+    def update_cursor_visibility(self):
+        if self.paused:
+            glutSetCursor(GLUT_CURSOR_LEFT_ARROW)  # Show cursor when paused
+        elif self.shop.active:
+            glutSetCursor(GLUT_CURSOR_NONE)  # Hide cursor when shop is active
+        else:
+            glutSetCursor(GLUT_CURSOR_NONE)  # Hide cursor when playing
+
     def initialize_game(self):
         self.spawn_ducks()
         self.generate_trees()
@@ -722,8 +730,10 @@ class Game:
             self.hud.reload()
         elif key.lower() == b'b':
             self.shop.toggle()
+            self.update_cursor_visibility()
         elif key.lower() == b'p':
             self.paused = not self.paused
+            self.update_cursor_visibility()
         elif key == b'\t':
             self.night_mode = not self.night_mode
         elif key.lower() == b'q':
@@ -780,6 +790,8 @@ class Game:
         if self.paused:
             glutPostRedisplay()
             return
+
+        self.update_cursor_visibility()
 
         # Update difficulty based on score
         if self.night_mode:
