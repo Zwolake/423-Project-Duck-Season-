@@ -15,8 +15,8 @@ CAM_X = 0
 CAM_Y = -100
 CAM_Z = 100
 
-PLAYER_X = -100
-PLAYER_Y = -100
+PLAYER_X = 0
+PLAYER_Y = 0
 PLAYER_Z = 25
 PLAYER_R = -90    #? Player rotation
 PLAYER_SPEED = 2.5
@@ -57,12 +57,16 @@ DUCK_WING_SPEED = 10
 DUCK_SPEED = 5
 DUCK_FALLING_SPEED = 2.5
 DUCKS = []
-DUCK_HITBOX = 100
+DUCK_HITBOX = 50
 
 BULLETS = []
 BULLET_SPEED = 100
 
 SCORE = 0
+
+rand_x = [random.uniform(-GROUND_X, GROUND_X) for _ in range(100)]
+rand_y = [random.uniform(GROUND_Y, -GROUND_Y) for _ in range(100)]
+
 
 # Color Variables
 duck_light_gray = (0.7, 0.7, 0.7)
@@ -296,6 +300,7 @@ def draw_tree(x,y):
     
     glPopMatrix()   #? transform end
 
+
 #! Shop
 
 
@@ -308,6 +313,30 @@ def draw_surface():
     glVertex3f(GROUND_X, -GROUND_Y, 0)
     glVertex3f(GROUND_X, GROUND_Y, 0)
     glVertex3f(-GROUND_X, GROUND_Y, 0)
+
+    glColor3f(0, 0.85, 0.85)
+    glVertex3f(-GROUND_X, -GROUND_Y, 0)
+    glVertex3f(GROUND_X, -GROUND_Y, 0)
+    glVertex3f(GROUND_X, -GROUND_Y, DUCK_FLYING_Z + 10)
+    glVertex3f(-GROUND_X, -GROUND_Y, DUCK_FLYING_Z + 10)
+
+    glVertex3f(GROUND_X, -GROUND_Y, 0)
+    glVertex3f(GROUND_X, GROUND_Y, 0)
+    glVertex3f(GROUND_X, GROUND_Y, DUCK_FLYING_Z + 10)
+    glVertex3f(GROUND_X, -GROUND_Y, DUCK_FLYING_Z + 10)
+
+    glVertex3f(GROUND_X, GROUND_Y, 0)
+    glVertex3f(-GROUND_X, GROUND_Y, 0)
+    glVertex3f(-GROUND_X, GROUND_Y, DUCK_FLYING_Z + 10)
+    glVertex3f(GROUND_X, GROUND_Y, DUCK_FLYING_Z + 10)
+
+    glVertex3f(-GROUND_X, GROUND_Y, 0)
+    glVertex3f(-GROUND_X, -GROUND_Y, 0)
+    glVertex3f(-GROUND_X, -GROUND_Y, DUCK_FLYING_Z + 10)
+    glVertex3f(-GROUND_X, GROUND_Y, DUCK_FLYING_Z + 10)
+    
+
+        
     glEnd()
 
 
@@ -506,7 +535,7 @@ def devDebug():
 def setupCamera():
     glMatrixMode(GL_PROJECTION)  # Switch to projection matrix mode
     glLoadIdentity()  # Reset the projection matrix
-    gluPerspective(FOV_Y, 16/9, 0.1, 2500) # Set up a perspective projection (field of view, aspect ratio, near clip, far clip)
+    gluPerspective(FOV_Y, 16/9, 0.1, 2000) # Set up a perspective projection (field of view, aspect ratio, near clip, far clip)
     glMatrixMode(GL_MODELVIEW)  # Switch to model-view matrix mode
     glLoadIdentity()  # Reset the model-view matrix
 
@@ -526,16 +555,26 @@ def setupCamera():
 def showScreen():
     glEnable(GL_DEPTH_TEST)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-    glClearColor(0, 0.9, 0.9, 0.5)
+    glClearColor(0, 0.9, 0.9, 0.5)  # skyblue
     glLoadIdentity()  # Reset modelview matrix
     glViewport(0, 0, 1280, 720)  # Set viewport size
 
     #TODO setupCamera()
     setupCamera()
 
-    # Draw the surface and a tree so something is visible
+    # Draw the surface and trees
     draw_surface()
-    draw_tree(0, 0)
+    # ----------draw trees------ #
+
+    for i in range(100):
+        draw_tree(rand_x[i], GROUND_Y)
+        draw_tree(rand_x[i], -GROUND_Y)
+        draw_tree(GROUND_X, rand_y[i])
+        draw_tree(-GROUND_X, rand_y[i])
+    
+    # for _ in range(3):
+    #     draw_tree(rand_x, rand_y)
+    # ------------------------------ #
 
     if len(DUCKS) < DUCK_COUNT: #? spawns DUCK_COUNT amount of ducks
         DUCKS.append(Duck(  random.uniform(-GROUND_X, GROUND_X),
