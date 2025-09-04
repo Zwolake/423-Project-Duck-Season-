@@ -51,10 +51,11 @@ MOVE_RIGHT = False
 AIM_LEFT = False
 AIM_RIGHT = False
 
-DUCK_COUNT = 1
-DUCK_FLYING_Z = 5
+DUCK_COUNT = 10
+DUCK_FLYING_Z = 1000
 DUCK_WING_SPEED = 10
-DUCK_SPEED = 10
+DUCK_SPEED = 5
+DUCK_FALLING_SPEED = 5
 DUCKS = []
 
 # Color Variables
@@ -489,8 +490,8 @@ def showScreen():
         #draw_duck(x, y, z, state)
 
     glPushMatrix()
-    glTranslatef(0, 0, 1000)
-    glutSolidCube(10)
+    # glTranslatef(0, 0, 1000)
+    # glutSolidCube(10)
     glPopMatrix()
 
     # Display game info text at a fixed screen position
@@ -535,16 +536,23 @@ def idle():
     for duck in DUCKS:
         if duck.state == 'flying':
             duck.wing_angle += DUCK_WING_SPEED
-            _x = duck.position[0] - (DUCK_SPEED * cos(radians(duck.rotation+90))) 
-            _y = duck.position[1] - (DUCK_SPEED * sin(radians(duck.rotation+90)))
-            if abs(_x) > GROUND_X:
-                print('a')
+            _x = duck.position[0] - (DUCK_SPEED * cos(radians(duck.rotation+90)))   #? position change in x
+            _y = duck.position[1] - (DUCK_SPEED * sin(radians(duck.rotation+90)))   #? position change in y
+            if abs(_x) > GROUND_X + 100:  #? bound and flip teleport to other x_axis bound
+                # print('a')
                 _x *= -1
-            if abs(_y) > GROUND_Y:
-                print('b')
+            if abs(_y) > GROUND_Y + 100:  #? same for y_axis
+                # print('b')
                 _y *= -1
-            duck.position[0], duck.position[1] = _x, _y
-            print(duck.position[0], duck.position[1])
+            duck.position[0], duck.position[1] = _x, _y #? update position
+            # print(duck.position[0], duck.position[1])
+
+        elif duck.state == 'falling':   #! for falling duck -> may not work
+            _z = duck.position[2] - DUCK_FALLING_SPEED  
+            if _z > 0:
+                duck.position[2] = _z
+                duck.state = 'dead'
+            
     # ---------------------------------- #
 
     
