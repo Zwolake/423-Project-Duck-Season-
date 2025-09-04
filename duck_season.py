@@ -380,7 +380,7 @@ def shoot():
     shoot_y = - sin(radians(bullet_angle))
     shoot_z = cos(atan2((LOOK_Z-I_LOOK_Z),LOOK_Y))
 
-    _x, _y, _z = PLAYER_X, PLAYER_Y, PLAYER_Z
+    _x, _y, _z = PLAYER_X+5, PLAYER_Y, PLAYER_Z
 
     BULLETS.append(Bullet((_x,_y,_z),(shoot_x,shoot_y,shoot_z)))
     pass
