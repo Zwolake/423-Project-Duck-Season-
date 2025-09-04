@@ -11,23 +11,17 @@ import time
     z=height (up-down) '''
 
 #* Game variables
-CAM_X = 0
-CAM_Y = -100
-CAM_Z = 100
-
-PLAYER_X = 0
+PLAYER_X = 0    #? player position
 PLAYER_Y = 0
 PLAYER_Z = 25
 PLAYER_R = -90    #? Player rotation
 PLAYER_SPEED = 2.5
 
-LOOK_X = 0
+LOOK_X = 0      #? focus point (changes with player)
 LOOK_Y = 200
-I_LOOK_Z = 25
 LOOK_Z = 25
-# LOOK_SPEED_X = 10
-LOOK_SPEED_Z = 20
-LOOK_DELTA_ANGLE = 2.5
+LOOK_SPEED_Z = 20   #? change of vertical focus point
+LOOK_DELTA_ANGLE = 2.5  #? degree change of horizontal focus point
 
 GROUND_X = 1000    #? half of ground length
 GROUND_Y = 1000     #? half of ground width
@@ -39,29 +33,33 @@ TREE_HEIGHT = 50
 
 FOV_Y = 90
 
-BUTTONS = {'w':False, 's':False, 'a':False, 'd':False}
+BUTTONS = {'w':False, 's':False, 'a':False, 'd':False}  #? flags for smooth buttons
 
-MOVE_FORWARD = False
+MOVE_FORWARD = False    #? flags for smooth buttons(2)
 MOVE_BACKWARD = False
 MOVE_LEFT = False
 MOVE_RIGHT = False
 
-AIM_LEFT = False
+AIM_LEFT = False    #? flags for smooth movement(3)
 AIM_RIGHT = False
 
-DUCK_COUNT = 20
-DUCK_FLYING_Z = 500
-DUCK_WING_SPEED = 10
-DUCK_SPEED = 5
-DUCK_FALLING_SPEED = 2.5
-DUCKS = []
-DUCK_HITBOX = 50
+DUCK_COUNT = 20 #? no of ducks in the map
+DUCK_FLYING_Z = 500 #? duck flight height
+DUCK_WING_SPEED = 10    #? duck flapping speed
+DUCK_SPEED = 5  #? duck moving speed
+DUCK_SPEED_DELTA = 0.05 #? duck move speed change
+DUCK_FALLING_SPEED = 2.5    #? falling duck speed
+DUCKS = []  #? duck list
+DUCK_HITBOX = 50    #? duck hitbox width
 
-BULLETS = []
-BULLET_SPEED = 100
+BULLETS = []    #? bullet list
+BULLET_SPEED = 100  #? bullet speed
 
-SCORE = 0
-TREE_COUNT = 30
+SCORE = 0   #? score + currency
+
+AMMO_COUNT = 8  #? ammo
+
+TREE_COUNT = 30 #? environment tree count
 rand_x = [random.uniform(-GROUND_X, GROUND_X) for _ in range(TREE_COUNT)]
 rand_y = [random.uniform(GROUND_Y, -GROUND_Y) for _ in range(TREE_COUNT)]
 
@@ -73,19 +71,17 @@ duck_medium_gray = (0.5, 0.5, 0.5)
 duck_dark_gray = (0.3, 0.3, 0.3)
 eye_black = (0.0, 0.0, 0.0)
 
-
-#TODO - GameObjects
-class Duck:
+#* ----- Duck ----- #
+class Duck: #? duck
     def __init__(self, x, y, z, r):
         self.position = [x, y, z]
         self.rotation = r
-        self.wing_flapping_angle = 0
         self.state = 'flying'
         self.wing_angle = 0.0
         self.dim = 6
 
 
-    def draw_duck(self):
+    def draw_duck(self):    #? draws duck at given point
         global duck_dark_gray, duck_light_gray, duck_med_gray, duck_medium_gray, eye_black
 
         glPushMatrix()
@@ -205,7 +201,7 @@ class Duck:
         
         glPopMatrix()
 
-    def drop_duck(self):
+    def drop_duck(self):    #? duck status falling
 
         '''If bullet hits the duck, the state changes into falling.
         So at collision of bullet and duck, call this function.'''
@@ -213,7 +209,7 @@ class Duck:
         self.state = 'falling'
         self.wing_angle = 0.0
 
-    def dead_duck(self):               
+    def dead_duck(self):    #? duck status dead        
         
         '''If falling duck hits ground state changes to dead.
         So when at collision with ground, call this function.'''
@@ -221,41 +217,19 @@ class Duck:
         self.state = 'dead'
         self.wing_angle = 0.0
 
-#* draw_duck placeholder
-# def draw_duck(x, y, z, state):  #? x,y,z, (flying/falling/landed)
-#     glPushMatrix()
-#     glTranslatef(x, y, z)
-
-#     if state == "flying":
-#         # Draw the duck in a flying position
-#         glColor3f(1.0, 1.0, 0.0)  # Yellow color for the duck
-#         glPushMatrix()
-#         glRotate(random.uniform(radians(0), radians(359)), 0, 0, 1)
-#         glutSolidSphere(5, 10, 10)  # Draw the duck's body
-#         glPopMatrix()
-
-#     elif state == "falling":
-#         # Draw the duck in a falling position
-#         glColor3f(1.0, 0.0, 0.0)  # Red color for the duck
-#         glutSolidSphere(5, 10, 10)  # Draw the duck's body
-#     elif state == "landed":
-#         # Draw the duck in a landed position
-#         glColor3f(0.0, 0.0, 0.0)  # Black color for the duck
-#         glutSolidSphere(5, 10, 10)  # Draw the duck's body
-
-#     glPopMatrix()
-
 #! Dog(?)
 #! Wolves(?)
-#! Rifle
-#* Bullet
-class Bullet:
+
+#TODO Rifle
+
+#* ----- Bullet ----- #
+class Bullet:   #? bullet 
     def __init__(self, start_pos, direction):
         self.position = list(start_pos)
         self.direction = direction
         # self.creation_time = time.time()
 
-    def update(self):
+    def update(self):   #? updates bullet position
         self.position[0] += self.direction[0] / 1000 * BULLET_SPEED
         self.position[1] += self.direction[1] / 1000 * BULLET_SPEED
         self.position[2] += self.direction[2] / 1000 * BULLET_SPEED
@@ -266,23 +240,22 @@ class Bullet:
             return
 
 
-    def draw(self):
+    def draw(self): #? draws bullet
         glPushMatrix()
         glTranslatef(self.position[0], self.position[1], self.position[2])
         glColor3f(1.0, 1.0, 0.0) # Yellow
         glutSolidSphere(2, 8, 8)
         glPopMatrix()
 
-#* Tree
-
-class Tree:
+#* ----- Tree ----- #
+class Tree: #? tree
     def __init__(self, x, y, height=TREE_HEIGHT, radius=TREE_RADIUS):
         self.x = x
         self.y = y
         self.height = random.uniform(height-10,height+10)
         self.radius = random.uniform(radius-5, radius+5)
 
-    def draw_tree(self):
+    def draw_tree(self):    #? draws tree
         glPushMatrix()  #? transform start
 
         glTranslatef(self.x, self.y, 0)
@@ -306,12 +279,9 @@ class Tree:
         
         glPopMatrix()   #? transform end
 
+#TODO Shop
 
-#! Shop
-
-
-#TODO - Play Area
-# Surface
+#* ----- play area ----- #
 def draw_surface():
     glBegin(GL_QUADS)
     glColor3f(0.0, 0.5, 0.0)  # Green color for grass
@@ -351,14 +321,9 @@ def draw_surface():
 #! Crosshair
 
 #TODO Implement game logic
-#! Dog AI
-#! Wolf AI
-#! Rifle mechanics
-#! Bullet mechanics
 #! Shop interactions
 
-#? saif kutta
-#TODO Controls
+#* ----- Controls ----- #
 def move_forward():
     global PLAYER_X, PLAYER_Y, PLAYER_Z
     move_x = PLAYER_X - (PLAYER_SPEED * cos(radians(PLAYER_R)))
@@ -421,21 +386,20 @@ def aim_right():
     LOOK_X, LOOK_Y = aim_x, aim_y
     PLAYER_R -= LOOK_DELTA_ANGLE    #? Update player rotation
 
-#* shoot helper function
 def shoot():
-    global BULLETS
-    bullet_angle = PLAYER_R
+    global BULLETS, AMMO_COUNT
 
-    _x, _y, _z = PLAYER_X+5, PLAYER_Y, PLAYER_Z
+    if AMMO_COUNT > 0:
+        _x, _y, _z = PLAYER_X+5, PLAYER_Y, PLAYER_Z
 
-    dx = (PLAYER_X + LOOK_X) - _x
-    dy = (PLAYER_Y + LOOK_Y + 1) - _y
-    dz = LOOK_Z - _z
+        dx = (PLAYER_X + LOOK_X) - _x
+        dy = (PLAYER_Y + LOOK_Y + 1) - _y
+        dz = LOOK_Z - _z
 
-    BULLETS.append(Bullet((_x,_y,_z),(dx,dy,dz)))
-    pass
+        BULLETS.append(Bullet((_x,_y,_z),(dx,dy,dz)))
+        AMMO_COUNT -= 1
 
-#! Movement keys (WASD) + Shop menu (numbers)
+#* ----- Keyboard ----- #
 def keyboardListener(key, _x, _y):
     #TODO assign movement
     global PLAYER_X, PLAYER_Y, PLAYER_Z
@@ -478,21 +442,10 @@ def keyboardUpListener(key, _x, _y):
     if key == b'd':
         BUTTONS['d']=False
 
-# 
 def specialKeyListener(key, _x, _y):
-    # assign look around
-    # global LOOK_X, LOOK_Y, LOOK_Z
-    # if key == GLUT_KEY
-    #     LOOK_Z += 1 * LOOK_SPEED
-    # elif key == GLUT_KEY_DOWN:
-    #     LOOK_Z -= 1 * LOOK_SPEED        
-    # elif key == GLUT_KEY_LEFT:
-    #     LOOK_X -= 1 * LOOK_SPEED
-    # elif key == GLUT_KEY_RIGHT:
-    #     LOOK_X += 1 * LOOK_SPEED
     pass
 
-#* camera movement (mouse buttons)
+#* ----- Mouse ----- #
 def mouseListener(button, state, _x, _y):
     #TODO assign shooting
     global LOOK_X, LOOK_Y, LOOK_Z
@@ -524,6 +477,7 @@ def mouseListener(button, state, _x, _y):
 
 #TODO Finishing touch
 
+# ----- DEBUG ----- #
 def devDebug():
     if not hasattr(devDebug, "last_print_time"):
         devDebug.last_print_time = time.time()
@@ -535,7 +489,7 @@ def devDebug():
             f"{glutGet(GLUT_ELAPSED_TIME)} : Player Currently At - X={x:.2f} Y={y:.2f} Z={z:.2f}"
         )
 
-# camera
+#* ----- Camera ----- #
 def setupCamera():
     glMatrixMode(GL_PROJECTION)  # Switch to projection matrix mode
     glLoadIdentity()  # Reset the projection matrix
@@ -554,8 +508,7 @@ def setupCamera():
     glutSolidSphere(1, 10, 10)
     glPopMatrix()
     
-        
-#* display function -> draw
+#* ----- Draw ----- #
 def showScreen():
     glEnable(GL_DEPTH_TEST)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
@@ -566,16 +519,10 @@ def showScreen():
     #TODO setupCamera()
     setupCamera()
 
-    # Draw the surface and trees
     draw_surface()
-    # ----------draw trees------ #
 
     for i in range(TREE_COUNT):
         Tree(rand_x[i], rand_y[i]).draw_tree()
-    
-    # for _ in range(3):
-    #     draw_tree(rand_x, rand_y)
-    # ------------------------------ #
 
     if len(DUCKS) < DUCK_COUNT: #? spawns DUCK_COUNT amount of ducks
         DUCKS.append(Duck(  random.uniform(-GROUND_X, GROUND_X),
@@ -592,16 +539,9 @@ def showScreen():
     for bullet in BULLETS:
         bullet.draw()
 
-    glPushMatrix()
-    # glTranslatef(0, 0, 1000)
-    # glutSolidCube(10)
-    glPopMatrix()
+    #TODO UI elements
 
-    # Display game info text at a fixed screen position
-    # draw_text(10, 770, f"A Random Fixed Position Text")
-    # draw_text(10, 740, f"See how the position and variable change?: {enemy_body_radius}")
-
-    # ! UI elements
+    #* ---- Crosshair ---- #
     # Initialize
     glMatrixMode(GL_PROJECTION)
     glPushMatrix()
@@ -633,10 +573,10 @@ def showScreen():
 
     glutSwapBuffers()
 
-FPS = 60  # Target frames per second
-FRAME_TIME_MS = int(1000 / FPS)
+# FPS = 60  # Target frames per second
+# FRAME_TIME_MS = int(1000 / FPS)
 
-#* idle function -> animate
+#* ----- Idle ----- #
 def idle():
     global LOOK_X, LOOK_Y, LOOK_Z
     global PLAYER_X, PLAYER_Y, PLAYER_Z, PLAYER_R, PLAYER_SPEED
@@ -665,7 +605,7 @@ def idle():
         # print("Aim Right")
 
 
-    # -------- Duck animation --------- #
+    #* ---- Duck animation ---- #
     for duck in DUCKS:
         if duck.state == 'flying':
             duck.wing_angle += DUCK_WING_SPEED
@@ -689,17 +629,11 @@ def idle():
                     duck.state = 'falling'
                     BULLETS.remove(bullet)
                     print('hit')
-
-        # elif duck.state == 'falling':   #! for falling duck -> may not work
-        #     _z = duck.position[2] - DUCK_FALLING_SPEED  
-        #     if _z <= 0:
-        #         duck.position[2] = _z
-        #         duck.state = 'dead'
             
-    # ---------------------------------- #
+    #* ---- Bullet animation ---- #
     for bullet in BULLETS:
         bullet.update()
-    # ---------------------------------- #
+    #* ---- Duck hitbox ---- #
     for duck in DUCKS:
         _x, _y, _z = duck.position
         dx = abs(_x - PLAYER_X)
@@ -715,8 +649,7 @@ def idle():
                 SCORE += 10
                 DUCKS.remove(duck)
                 print(f"score: {SCORE}")        
-    
-    #TODO update game state
+
     # devDebug()
 
     glutPostRedisplay()  # Request a redraw
