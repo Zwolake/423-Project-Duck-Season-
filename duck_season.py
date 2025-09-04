@@ -61,9 +61,9 @@ BULLETS = []
 BULLET_SPEED = 100
 
 SCORE = 0
-
-rand_x = [random.uniform(-GROUND_X, GROUND_X) for _ in range(100)]
-rand_y = [random.uniform(GROUND_Y, -GROUND_Y) for _ in range(100)]
+TREE_COUNT = 30
+rand_x = [random.uniform(-GROUND_X, GROUND_X) for _ in range(TREE_COUNT)]
+rand_y = [random.uniform(GROUND_Y, -GROUND_Y) for _ in range(TREE_COUNT)]
 
 
 # Color Variables
@@ -285,7 +285,7 @@ class Tree:
     def draw_tree(self):
         glPushMatrix()  #? transform start
 
-        glTranslatef(x, y, 0)
+        glTranslatef(self.x, self.y, 0)
 
         #* tree leaves
         glPushMatrix()
@@ -314,7 +314,7 @@ class Tree:
 # Surface
 def draw_surface():
     glBegin(GL_QUADS)
-    glColor3f(0.0, 1, 0.0)  # Green color for grass
+    glColor3f(0.0, 0.5, 0.0)  # Green color for grass
     glVertex3f(-GROUND_X, -GROUND_Y, 0)
     glVertex3f(GROUND_X, -GROUND_Y, 0)
     glVertex3f(GROUND_X, GROUND_Y, 0)
@@ -340,8 +340,6 @@ def draw_surface():
     glVertex3f(-GROUND_X, -GROUND_Y, 0)
     glVertex3f(-GROUND_X, -GROUND_Y, DUCK_FLYING_Z + 10)
     glVertex3f(-GROUND_X, GROUND_Y, DUCK_FLYING_Z + 10)
-    
-
         
     glEnd()
 
@@ -572,11 +570,8 @@ def showScreen():
     draw_surface()
     # ----------draw trees------ #
 
-    for i in range(100):
-        Tree(rand_x[i], GROUND_Y).draw_tree()
-        Tree(rand_x[i], -GROUND_Y).draw_tree()
-        Tree(GROUND_X, rand_y[i]).draw_tree()
-        Tree(-GROUND_X, rand_y[i]).draw_tree()
+    for i in range(TREE_COUNT):
+        Tree(rand_x[i], rand_y[i]).draw_tree()
     
     # for _ in range(3):
     #     draw_tree(rand_x, rand_y)
