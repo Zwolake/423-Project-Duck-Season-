@@ -47,6 +47,7 @@ BULLET_SPEED = 10.0
 BULLET_LIFESPAN = 5.0 # in seconds
 
 # --- Color Variables ---
+
 # Duck
 duck_color_schemes = [
     {"light": (0.7, 0.7, 0.7), "med": (0.6, 0.6, 0.6), "medium": (0.5, 0.5, 0.5), "dark": (0.3, 0.3, 0.3)},
