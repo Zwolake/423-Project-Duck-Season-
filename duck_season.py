@@ -538,8 +538,8 @@ def showScreen():
     draw_tree(0, 0)
 
     if len(DUCKS) < DUCK_COUNT: #? spawns DUCK_COUNT amount of ducks
-        DUCKS.append(Duck(  random.uniform(-500, 500),
-                            random.uniform(-500, 500), 
+        DUCKS.append(Duck(  random.uniform(-GROUND_X, GROUND_X),
+                            random.uniform(-GROUND_Y, GROUND_Y), 
                             random.uniform( DUCK_FLYING_Z + DUCK_FLYING_Z/4, 
                                             DUCK_FLYING_Z - DUCK_FLYING_Z/4),
                             random.uniform(0, 359)))
@@ -602,7 +602,7 @@ def idle():
     global PLAYER_X, PLAYER_Y, PLAYER_Z, PLAYER_R, PLAYER_SPEED
     global BULLETS
     global SCORE
-
+# ---------------------------------- #
     #* Player movement
     if BUTTONS['w']:
         move_forward()
@@ -631,20 +631,20 @@ def idle():
             duck.wing_angle += DUCK_WING_SPEED
             _x = duck.position[0] - (DUCK_SPEED * cos(radians(duck.rotation+90)))   #? position change in x
             _y = duck.position[1] - (DUCK_SPEED * sin(radians(duck.rotation+90)))   #? position change in y
-            if abs(_x) > GROUND_X + 100:  #? bound and flip teleport to other x_axis bound
+            if abs(_x) > GROUND_X + 10:  #? bound and flip teleport to other x_axis bound
                 # print('a')
                 _x *= -1
-            if abs(_y) > GROUND_Y + 100:  #? same for y_axis
+            if abs(_y) > GROUND_Y + 10:  #? same for y_axis
                 # print('b')
                 _y *= -1
             duck.position[0], duck.position[1] = _x, _y #? update position
             # print(duck.position[0], duck.position[1])
 
-            x = bullet.position[0] - duck.position[0]
-            y = bullet.position[1] - duck.position[1]
-            z = bullet.position[2] - duck.position[2]
-
             for bullet in BULLETS:
+                x = bullet.position[0] - duck.position[0]
+                y = bullet.position[1] - duck.position[1]
+                z = bullet.position[2] - duck.position[2]
+
                 if abs(x) <= DUCK_HITBOX and abs(y) <= DUCK_HITBOX and abs(z) <= DUCK_HITBOX:
                     duck.state = 'falling'
                     BULLETS.remove(bullet)
@@ -657,27 +657,31 @@ def idle():
         #         duck.state = 'dead'
             
     # ---------------------------------- #
-
+    for bullet in BULLETS:
+        bullet.update()
+    # ---------------------------------- #
     for duck in DUCKS:
         _x, _y, _z = duck.position
         dx = abs(_x - PLAYER_X)
         dy = abs(_y - PLAYER_Y)
-        dz = abs(_z - PLAYER_Z)
+        # dz = abs(_z - PLAYER_Z)
 
         if dx <= DUCK_HITBOX/2 and dy <= DUCK_HITBOX/2:
-            if 1 < dz <= PLAYER_Z:
+            if 1 < _z <= PLAYER_Z:
                 SCORE += 25
-            elif dy == 1:
+                DUCKS.remove(duck)
+                print(f"score: {SCORE}")        
+            elif _z == 1:
                 SCORE += 10
-            DUCKS.remove(duck)
+                DUCKS.remove(duck)
+                print(f"score: {SCORE}")        
     
-
     #TODO update game state
     # devDebug()
 
     glutPostRedisplay()  # Request a redraw
     # Schedule next frame
-    glutTimerFunc(FRAME_TIME_MS, idle, 0)
+    # glutTimerFunc(FRAME_TIME_MS, idle, 0)
 
 # main loop
 def main():
@@ -693,8 +697,8 @@ def main():
     glutSpecialFunc(specialKeyListener)
     glutMouseFunc(mouseListener)
     # glutPassiveMotionFunc(passiveMouseListener) 
-    # glutIdleFunc(idle)  # FPS limiting uses timer instead
-    idle()  # Start the timer-based loop
+    glutIdleFunc(idle)  # FPS limiting uses timer instead
+    # idle()  # Start the timer-based loop
 
     glutMainLoop()  # Enter the GLUT main loop
 
