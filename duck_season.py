@@ -87,7 +87,7 @@ def get_view_angles():
 
     xy_len = max(1e-6, (vx*vx + vy*vy)**0.5)
 
-    yaw_deg = degrees(atan2(vx, vy))         # 0° faces +Y, +90° faces +X
+    yaw_deg = -degrees(atan2(vx, vy))         # 0° faces +Y, +90° faces +X
     pitch_deg = -degrees(atan2(vz, xy_len))  # nose up => negative
 
     return yaw_deg, pitch_deg
