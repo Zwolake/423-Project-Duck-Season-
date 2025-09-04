@@ -113,7 +113,7 @@ class Duck: #? duck
         self.dim = 6
 
 
-    def draw_duck(self):    #? draws duck at given point
+    def draw_duck(self):
         global duck_dark_gray, duck_light_gray, duck_med_gray, duck_medium_gray, eye_black
 
         glPushMatrix()
@@ -137,12 +137,8 @@ class Duck: #? duck
         
         # Body
         glPushMatrix()
-        glTranslate(*self.position)
-        glRotate(90, 1, 0, 0)
-
-        glPushMatrix()
         glColor3f(*duck_light_gray)
-        glScalef(duck_scale * 1.5, duck_scale * 1, duck_scale * 2.5)
+        glScalef(1.5, 1, 2.5)
         glTranslatef(0, 0, 0)
         glutSolidCube(1.5)
         glPopMatrix()
@@ -150,7 +146,7 @@ class Duck: #? duck
         # Neck
         glPushMatrix()
         glColor3f(*duck_dark_gray)
-        glScalef(duck_scale * 0.7, duck_scale * 0.5, duck_scale * 0.7)
+        glScalef(0.7, 0.5, 0.7)
         glTranslatef(0, 0.6, 3)
         glutSolidCube(1.0)
         glPopMatrix()
@@ -158,7 +154,7 @@ class Duck: #? duck
         # Head
         glPushMatrix()
         glColor3f(*duck_med_gray)
-        glScalef(duck_scale * 1.1, duck_scale * 1.0, duck_scale * 1.0)
+        glScalef(1.1, 1.0, 1.0)
         glTranslatef(0, 0.4, 2.8)
         glutSolidCube(1.0)
         glPopMatrix()
@@ -166,7 +162,7 @@ class Duck: #? duck
         # Beak
         glPushMatrix()
         glColor3f(*duck_dark_gray)
-        glScalef(duck_scale * 0.6, duck_scale * 0.2, duck_scale * 0.5)
+        glScalef(0.6, 0.2, 0.5)
         glTranslatef(0, 0.6, 6.7)
         glutSolidCube(1)
         glPopMatrix()
@@ -174,7 +170,7 @@ class Duck: #? duck
         # Left eye
         glPushMatrix()
         glColor3f(*eye_black)
-        glScalef(duck_scale * 0.2, duck_scale * 0.2, duck_scale * 0.2)
+        glScalef(0.2, 0.2, 0.2)
         glTranslatef(-2.5, 3.6, 15.0)
         glutSolidCube(1.0)
         glPopMatrix()
@@ -182,7 +178,7 @@ class Duck: #? duck
         # Right eye
         glPushMatrix()
         glColor3f(*eye_black)
-        glScalef(duck_scale * 0.2, duck_scale * 0.2, duck_scale * 0.2)
+        glScalef(0.2, 0.2, 0.2)
         glTranslatef(2.5, 3.6, 15.0)
         glutSolidCube(1.0)
         glPopMatrix()
@@ -196,7 +192,7 @@ class Duck: #? duck
         glTranslatef(-1.5, 0.4, 0.0)
         if self.state == 'flying':
             glRotatef(self.wing_delta - 30, 0, 0, 1)
-        glScalef(duck_scale * 1.9, duck_scale * 0.2, duck_scale * 1.0)
+        glScalef(1.9, 0.2, 1.0)
         glutSolidCube(1.5)
         glPopMatrix()
 
@@ -206,14 +202,14 @@ class Duck: #? duck
         glTranslatef(1.7, 0.4, 0.0)
         if self.state == 'flying':
             glRotatef(-self.wing_delta + 30, 0, 0, 1)
-        glScalef(duck_scale * 1.9, duck_scale * 0.2, duck_scale * 1.0)
+        glScalef(1.9, 0.2, 1.0)
         glutSolidCube(1.5)
         glPopMatrix()
 
         # Left leg
         glPushMatrix()
         glColor3f(*duck_dark_gray)
-        glScalef(duck_scale * 0.3, duck_scale * 1.0, duck_scale * 0.3)
+        glScalef(0.3, 1.0, 0.3)
         glTranslatef(-2.0, -1.2, -1.0)
         glutSolidCube(1.0)
         glPopMatrix()
@@ -221,7 +217,7 @@ class Duck: #? duck
         # Right leg
         glPushMatrix()
         glColor3f(*duck_dark_gray)
-        glScalef(duck_scale * 0.3, duck_scale * 1.0, duck_scale * 0.3)
+        glScalef(0.3, 1.0, 0.3)
         glTranslatef(2.0, -1.2, -1.0)
         glutSolidCube(1.0)
         glPopMatrix()
@@ -231,7 +227,7 @@ class Duck: #? duck
         glColor3f(*duck_dark_gray)
         glTranslatef(0, -0.2, -2.0)
         glRotatef(20, 1, 0, 0)
-        glScalef(duck_scale * 1.8, duck_scale * 0.3, duck_scale * 2.4)
+        glScalef(1.8, 0.3, 2.4)
         glutSolidCube(1.0)
         glPopMatrix()
         
