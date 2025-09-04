@@ -896,7 +896,7 @@ def idle():
         print(PLAYER_R)
         print("Aim Right")
 
-    def update():
+def update():
     global shop, hud
     shop.update_effects(hud)   # expire timed boosts if needed
     glutPostRedisplay()
