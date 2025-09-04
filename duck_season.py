@@ -34,10 +34,8 @@ GROUND_Y = 1000     #? half of ground width
 
 SKYBOX_HEIGHT = 1500
 
-TREE_TRUNK_RADIUS = 10
-TREE_TRUNK_HEIGHT = 50
-TREE_LEAVES_RADIUS = 30
-TREE_LEAVES_HEIGHT = 50
+TREE_RADIUS = 10
+TREE_HEIGHT = 50
 
 FOV_Y = 90
 
@@ -276,29 +274,37 @@ class Bullet:
         glPopMatrix()
 
 #* Tree
-def draw_tree(x,y):
-    glPushMatrix()  #? transform start
 
-    glTranslatef(x, y, 0)
+class Tree:
+    def __init__(self, x, y, height=TREE_HEIGHT, radius=TREE_RADIUS):
+        self.x = x
+        self.y = y
+        self.height = random.uniform(height-10,height+10)
+        self.radius = random.uniform(radius-5, radius+5)
 
-    #* tree leaves
-    glPushMatrix()
+    def draw_tree(self):
+        glPushMatrix()  #? transform start
 
-    glTranslatef(0, 0, TREE_TRUNK_HEIGHT)  #? Move to the top of the trunk
-    glColor3f(0.0, 0.5, 0.0)  #? Green color for leaves
-    gluCylinder(gluNewQuadric(), TREE_LEAVES_RADIUS, 0, TREE_LEAVES_HEIGHT, 12, 1)  # parameters are: quadric, base radius, top radius, height, slices, stacks
-    
-    glPopMatrix()
+        glTranslatef(x, y, 0)
 
-    #*tree trunk
-    glPushMatrix()
+        #* tree leaves
+        glPushMatrix()
 
-    glColor3f(0.5, 0.35, 0.05)  #? Brown color for trunk
-    gluCylinder(gluNewQuadric(), TREE_TRUNK_RADIUS, TREE_TRUNK_RADIUS, TREE_TRUNK_HEIGHT, 12, 1)  # parameters are: quadric, base radius, top radius, height, slices, stacks
-    
-    glPopMatrix()
-    
-    glPopMatrix()   #? transform end
+        glTranslatef(0, 0, TREE_HEIGHT)  #? Move to the top of the trunk
+        glColor3f(0.0, 0.5, 0.0)  #? Green color for leaves
+        gluCylinder(gluNewQuadric(), TREE_RADIUS+20, 0, TREE_HEIGHT, 12, 1)  # parameters are: quadric, base radius, top radius, height, slices, stacks
+        
+        glPopMatrix()
+
+        #*tree trunk
+        glPushMatrix()
+
+        glColor3f(0.5, 0.35, 0.05)  #? Brown color for trunk
+        gluCylinder(gluNewQuadric(), TREE_RADIUS, TREE_RADIUS, TREE_HEIGHT, 12, 1)  # parameters are: quadric, base radius, top radius, height, slices, stacks
+        
+        glPopMatrix()
+        
+        glPopMatrix()   #? transform end
 
 
 #! Shop
@@ -567,10 +573,10 @@ def showScreen():
     # ----------draw trees------ #
 
     for i in range(100):
-        draw_tree(rand_x[i], GROUND_Y)
-        draw_tree(rand_x[i], -GROUND_Y)
-        draw_tree(GROUND_X, rand_y[i])
-        draw_tree(-GROUND_X, rand_y[i])
+        Tree(rand_x[i], GROUND_Y).draw_tree()
+        Tree(rand_x[i], -GROUND_Y).draw_tree()
+        Tree(GROUND_X, rand_y[i]).draw_tree()
+        Tree(-GROUND_X, rand_y[i]).draw_tree()
     
     # for _ in range(3):
     #     draw_tree(rand_x, rand_y)
