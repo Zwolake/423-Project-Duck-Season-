@@ -32,7 +32,7 @@ LOOK_DELTA_ANGLE = 2.5
 GROUND_X = 1000    #? half of ground length
 GROUND_Y = 1000     #? half of ground width
 
-SKYBOX_HEIGHT = 1000
+SKYBOX_HEIGHT = 1500
 
 TREE_TRUNK_RADIUS = 10
 TREE_TRUNK_HEIGHT = 50
@@ -51,15 +51,19 @@ MOVE_RIGHT = False
 AIM_LEFT = False
 AIM_RIGHT = False
 
-DUCK_COUNT = 10
-DUCK_FLYING_Z = 1000
+DUCK_COUNT = 1
+DUCK_FLYING_Z = 500
 DUCK_WING_SPEED = 10
 DUCK_SPEED = 5
 DUCK_FALLING_SPEED = 5
 DUCKS = []
 
 BULLETS = []
+<<<<<<< HEAD
 BULLET_SPEED = 50
+=======
+BULLET_SPEED = 100
+>>>>>>> 4381b8b381c13e3aa656c276b24d33c8f7b86655
 
 # Color Variables
 duck_light_gray = (0.7, 0.7, 0.7)
@@ -590,6 +594,7 @@ FRAME_TIME_MS = int(1000 / FPS)
 def idle(_=None):
     global LOOK_X, LOOK_Y, LOOK_Z
     global PLAYER_X, PLAYER_Y, PLAYER_Z, PLAYER_R, PLAYER_SPEED
+    global BULLETS
 
     #* Player movement
     if BUTTONS['w']:
@@ -627,6 +632,12 @@ def idle(_=None):
                 _y *= -1
             duck.position[0], duck.position[1] = _x, _y #? update position
             # print(duck.position[0], duck.position[1])
+
+            for bullet in BULLETS:
+                if abs(bullet.position[0] - duck.position[0]) <= 100 and abs(bullet.position[1] - duck.position[1]) <= 100 and abs(bullet.position[2] - duck.position[2]) <= 100:
+                    duck.state = 'falling'
+                    BULLETS.remove(bullet)
+                    print('hit')
 
         elif duck.state == 'falling':   #! for falling duck -> may not work
             _z = duck.position[2] - DUCK_FALLING_SPEED  
