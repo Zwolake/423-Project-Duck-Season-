@@ -58,6 +58,9 @@ DUCK_SPEED = 5
 DUCK_FALLING_SPEED = 5
 DUCKS = []
 
+BULLETS = []
+BULLET_SPEED = 10
+
 # Color Variables
 duck_light_gray = (0.7, 0.7, 0.7)
 duck_med_gray = (0.6, 0.6, 0.6)
@@ -206,16 +209,6 @@ class Duck:
         self.state = 'dead'
         self.wing_angle = 0.0
 
-
-
-
-#! Duck Falling
-#! Duck Landed
-
-
-
-
-
 #* draw_duck placeholder
 # def draw_duck(x, y, z, state):  #? x,y,z, (flying/falling/landed)
 #     glPushMatrix()
@@ -243,7 +236,25 @@ class Duck:
 #! Dog(?)
 #! Wolves(?)
 #! Rifle
-#! Bullet
+#* Bullet
+class Bullet:
+    def __init__(self, start_pos, direction):
+        self.position = list(start_pos)
+        self.direction = direction
+        # self.creation_time = time.time()
+
+    def update(self):
+        self.position[0] += self.direction[0] * BULLET_SPEED
+        self.position[1] += self.direction[1] * BULLET_SPEED
+        self.position[2] += self.direction[2] * BULLET_SPEED
+
+    def draw(self):
+        glPushMatrix()
+        glTranslatef(self.position[0], self.position[1], self.position[2])
+        glColor3f(1.0, 1.0, 0.0) # Yellow
+        glutSolidSphere(2, 8, 8)
+        glPopMatrix()
+
 #* Tree
 def draw_tree(x,y):
     glPushMatrix()  #? transform start
@@ -283,8 +294,6 @@ def draw_surface():
     glVertex3f(-GROUND_X, GROUND_Y, 0)
     glEnd()
 
-#! Border
-#! Shop
 
 #TODO - UI
 #! Ammo count
@@ -293,14 +302,10 @@ def draw_surface():
 #! Crosshair
 
 #TODO Implement game logic
-#! Duck flying
-#! Duck falling
-#! Duck landed
 #! Dog AI
 #! Wolf AI
 #! Rifle mechanics
 #! Bullet mechanics
-#! Border interactions
 #! Shop interactions
 
 #? saif kutta
@@ -349,6 +354,37 @@ def move_right():
         # print("move right")
         # print(PLAYER_X, PLAYER_Y)
 
+def aim_left():
+    global LOOK_X, LOOK_Y, LOOK_Z
+    global PLAYER_X, PLAYER_Y, PLAYER_Z, PLAYER_R, PLAYER_SPEED
+
+    aim_x = LOOK_X * cos(radians(LOOK_DELTA_ANGLE)) - LOOK_Y * sin(radians(LOOK_DELTA_ANGLE))
+    aim_y = LOOK_X * sin(radians(LOOK_DELTA_ANGLE)) + LOOK_Y * cos(radians(LOOK_DELTA_ANGLE))
+    LOOK_X, LOOK_Y = aim_x, aim_y
+    PLAYER_R += LOOK_DELTA_ANGLE    #? Update player rotation
+
+def aim_right():
+    global LOOK_X, LOOK_Y, LOOK_Z
+    global PLAYER_X, PLAYER_Y, PLAYER_Z, PLAYER_R, PLAYER_SPEED
+
+    aim_x = LOOK_X * cos(radians(-LOOK_DELTA_ANGLE)) - LOOK_Y * sin(radians(-LOOK_DELTA_ANGLE))
+    aim_y = LOOK_X * sin(radians(-LOOK_DELTA_ANGLE)) + LOOK_Y * cos(radians(-LOOK_DELTA_ANGLE))
+    LOOK_X, LOOK_Y = aim_x, aim_y
+    PLAYER_R -= LOOK_DELTA_ANGLE    #? Update player rotation
+
+#* shoot helper function
+def shoot():
+    global BULLETS
+    bullet_angle = PLAYER_R
+    shoot_x = - cos(radians(bullet_angle))
+    shoot_y = - sin(radians(bullet_angle))
+    shoot_z = cos(atan2((LOOK_Z-I_LOOK_Z),LOOK_Y))
+
+    _x, _y, _z = PLAYER_X, PLAYER_Y, PLAYER_Z
+
+    BULLETS.append(Bullet((_x,_y,_z),(shoot_x,shoot_y,shoot_z)))
+    pass
+
 #! Movement keys (WASD) + Shop menu (numbers)
 def keyboardListener(key, _x, _y):
     #TODO assign movement
@@ -368,6 +404,7 @@ def keyboardListener(key, _x, _y):
 
     if key == b' ':
         # Shoot
+        shoot()
         print("Shoot")
     
     #TODO assign shop menu
@@ -489,6 +526,9 @@ def showScreen():
         state = "flying"
         #draw_duck(x, y, z, state)
 
+    for bullet in BULLETS:
+        bullet.draw()
+
     glPushMatrix()
     # glTranslatef(0, 0, 1000)
     # glutSolidCube(10)
@@ -516,18 +556,12 @@ def idle():
     
     #* Player aiming
     if AIM_LEFT:
-        aim_x = LOOK_X * cos(radians(LOOK_DELTA_ANGLE)) - LOOK_Y * sin(radians(LOOK_DELTA_ANGLE))
-        aim_y = LOOK_X * sin(radians(LOOK_DELTA_ANGLE)) + LOOK_Y * cos(radians(LOOK_DELTA_ANGLE))
-        LOOK_X, LOOK_Y = aim_x, aim_y
-        PLAYER_R += LOOK_DELTA_ANGLE    #? Update player rotation
+        aim_left()
         # print(PLAYER_R)
         # print("Aim Left")
 
     if AIM_RIGHT:
-        aim_x = LOOK_X * cos(radians(-LOOK_DELTA_ANGLE)) - LOOK_Y * sin(radians(-LOOK_DELTA_ANGLE))
-        aim_y = LOOK_X * sin(radians(-LOOK_DELTA_ANGLE)) + LOOK_Y * cos(radians(-LOOK_DELTA_ANGLE))
-        LOOK_X, LOOK_Y = aim_x, aim_y
-        PLAYER_R -= LOOK_DELTA_ANGLE    #? Update player rotation
+        aim_right()
         # print(PLAYER_R)
         # print("Aim Right")
 
@@ -555,6 +589,8 @@ def idle():
             
     # ---------------------------------- #
 
+    for bullet in BULLETS:
+        bullet.update()
     
 
     #TODO update game state
@@ -575,6 +611,7 @@ def main():
     glutKeyboardUpFunc(keyboardUpListener)  # Register keyboard up listener
     glutSpecialFunc(specialKeyListener)
     glutMouseFunc(mouseListener)
+    # glutPassiveMotionFunc(passiveMouseListener) 
     glutIdleFunc(idle)  # Register the idle function to move the bullet automatically
 
     glutMainLoop()  # Enter the GLUT main loop
