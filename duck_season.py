@@ -244,9 +244,15 @@ class Bullet:
         # self.creation_time = time.time()
 
     def update(self):
-        self.position[0] += self.direction[0] * BULLET_SPEED
-        self.position[1] += self.direction[1] * BULLET_SPEED
-        self.position[2] += self.direction[2] * BULLET_SPEED
+        self.position[0] += self.direction[0] / 1000 * BULLET_SPEED
+        self.position[1] += self.direction[1] / 1000 * BULLET_SPEED
+        self.position[2] += self.direction[2] / 1000 * BULLET_SPEED
+
+        if self.position[2] > SKYBOX_HEIGHT:
+            print("Bullet removed")
+            BULLETS.remove(self)
+            return
+
 
     def draw(self):
         glPushMatrix()
@@ -376,13 +382,14 @@ def aim_right():
 def shoot():
     global BULLETS
     bullet_angle = PLAYER_R
-    shoot_x = - cos(radians(bullet_angle))
-    shoot_y = - sin(radians(bullet_angle))
-    shoot_z = cos(atan2((LOOK_Z-I_LOOK_Z),LOOK_Y))
 
     _x, _y, _z = PLAYER_X+5, PLAYER_Y, PLAYER_Z
 
-    BULLETS.append(Bullet((_x,_y,_z),(shoot_x,shoot_y,shoot_z)))
+    dx = (PLAYER_X + LOOK_X) - _x
+    dy = (PLAYER_Y + LOOK_Y + 1) - _y
+    dz = LOOK_Z - _z
+
+    BULLETS.append(Bullet((_x,_y,_z),(dx,dy,dz)))
     pass
 
 #! Movement keys (WASD) + Shop menu (numbers)
@@ -499,6 +506,13 @@ def setupCamera():
               PLAYER_X + LOOK_X , PLAYER_Y + LOOK_Y + 1, LOOK_Z,  # Look at point
               0, 0, 1)  # Up vector
     
+    # # Draw a square at the player's look position
+    # glPushMatrix()
+    # glTranslatef(PLAYER_X + LOOK_X, PLAYER_Y + LOOK_Y + 1, LOOK_Z)
+    # glColor3f(1.0, 0.0, 0.0)  # Red color
+    # glutSolidSphere(4, 20, 20)
+    # glPopMatrix()
+    
 #* display function -> draw
 def showScreen():
     glEnable(GL_DEPTH_TEST)
@@ -539,8 +553,11 @@ def showScreen():
     # draw_text(10, 740, f"See how the position and variable change?: {enemy_body_radius}")
     glutSwapBuffers()
 
+FPS = 60  # Target frames per second
+FRAME_TIME_MS = int(1000 / FPS)
+
 #* idle function -> animate
-def idle():
+def idle(_=None):
     global LOOK_X, LOOK_Y, LOOK_Z
     global PLAYER_X, PLAYER_Y, PLAYER_Z, PLAYER_R, PLAYER_SPEED
 
@@ -597,11 +614,13 @@ def idle():
     # devDebug()
 
     glutPostRedisplay()  # Request a redraw
+    # Schedule next frame
+    glutTimerFunc(FRAME_TIME_MS, idle, 0)
 
 # main loop
 def main():
     glutInit()
-    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH)  # Double buffering, RGB color, depth test
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH | GLUT_MULTISAMPLE)  # Double buffering, RGB color, depth test
     glutInitWindowSize(1280, 720)  # Window size
     glutInitWindowPosition(100, 100)  # Window position
     glutCreateWindow(b"Duck Season")  # Create the window
@@ -612,7 +631,8 @@ def main():
     glutSpecialFunc(specialKeyListener)
     glutMouseFunc(mouseListener)
     # glutPassiveMotionFunc(passiveMouseListener) 
-    glutIdleFunc(idle)  # Register the idle function to move the bullet automatically
+    # glutIdleFunc(idle)  # FPS limiting uses timer instead
+    idle()  # Start the timer-based loop
 
     glutMainLoop()  # Enter the GLUT main loop
 
