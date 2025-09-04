@@ -290,7 +290,7 @@ def draw_shotgun_model(x, y, z):
     # Hand/hip offset in *view space* (+X right, +Y forward, +Z up)
     glTranslatef(0.6, 1.2, -0.4)
 
-    glRotate(90, 1, 0, 0)
+    glRotatef(90, 1, 0, 0)
 
     # Stock (main wooden part)
     glPushMatrix()
