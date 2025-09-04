@@ -59,7 +59,7 @@ DUCK_FALLING_SPEED = 5
 DUCKS = []
 
 BULLETS = []
-BULLET_SPEED = 10
+BULLET_SPEED = 50
 
 # Color Variables
 duck_light_gray = (0.7, 0.7, 0.7)
@@ -506,13 +506,12 @@ def setupCamera():
               PLAYER_X + LOOK_X , PLAYER_Y + LOOK_Y + 1, LOOK_Z,  # Look at point
               0, 0, 1)  # Up vector
     
-    # # Draw a square at the player's look position
-    # glPushMatrix()
-    # glTranslatef(PLAYER_X + LOOK_X, PLAYER_Y + LOOK_Y + 1, LOOK_Z)
-    # glColor3f(1.0, 0.0, 0.0)  # Red color
-    # glutSolidSphere(4, 20, 20)
-    # glPopMatrix()
+    glPushMatrix()
+    glTranslatef(PLAYER_X + LOOK_X , PLAYER_Y + LOOK_Y + 1, LOOK_Z)
+    glutSolidSphere(1, 10, 10)
+    glPopMatrix()
     
+        
 #* display function -> draw
 def showScreen():
     glEnable(GL_DEPTH_TEST)
@@ -551,6 +550,37 @@ def showScreen():
     # Display game info text at a fixed screen position
     # draw_text(10, 770, f"A Random Fixed Position Text")
     # draw_text(10, 740, f"See how the position and variable change?: {enemy_body_radius}")
+
+    # ! UI elements
+    # Initialize
+    glMatrixMode(GL_PROJECTION)
+    glPushMatrix()
+    glLoadIdentity()
+    glOrtho(-640, 640, -480, 480, 0, 1)  # 640 x 480 Crosshair, Center -- (0,0)
+    glMatrixMode(GL_MODELVIEW)
+    glPushMatrix()
+    glLoadIdentity()
+
+    glDisable(GL_DEPTH_TEST)
+    
+    # Crosshair
+    glLineWidth(2)
+    glColor3f(1, 1, 1)
+    glBegin(GL_LINES)
+    glVertex2f(0, -10)
+    glVertex2f(0, 10)
+    glVertex2f(-10, 0)
+    glVertex2f(10, 0)
+    glEnd()
+
+    glEnable(GL_DEPTH_TEST)
+
+    # De-Initialize
+    glPopMatrix()
+    glMatrixMode(GL_PROJECTION)
+    glPopMatrix()
+    glMatrixMode(GL_MODELVIEW)
+
     glutSwapBuffers()
 
 FPS = 60  # Target frames per second
