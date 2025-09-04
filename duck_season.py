@@ -57,9 +57,12 @@ DUCK_WING_SPEED = 10
 DUCK_SPEED = 5
 DUCK_FALLING_SPEED = 2.5
 DUCKS = []
+DUCK_HITBOX = 100
 
 BULLETS = []
 BULLET_SPEED = 100
+
+SCORE = 0
 
 # Color Variables
 duck_light_gray = (0.7, 0.7, 0.7)
@@ -594,10 +597,11 @@ FPS = 60  # Target frames per second
 FRAME_TIME_MS = int(1000 / FPS)
 
 #* idle function -> animate
-def idle(_=None):
+def idle():
     global LOOK_X, LOOK_Y, LOOK_Z
     global PLAYER_X, PLAYER_Y, PLAYER_Z, PLAYER_R, PLAYER_SPEED
     global BULLETS
+    global SCORE
 
     #* Player movement
     if BUTTONS['w']:
@@ -636,8 +640,12 @@ def idle(_=None):
             duck.position[0], duck.position[1] = _x, _y #? update position
             # print(duck.position[0], duck.position[1])
 
+            x = bullet.position[0] - duck.position[0]
+            y = bullet.position[1] - duck.position[1]
+            z = bullet.position[2] - duck.position[2]
+
             for bullet in BULLETS:
-                if abs(bullet.position[0] - duck.position[0]) <= 100 and abs(bullet.position[1] - duck.position[1]) <= 100 and abs(bullet.position[2] - duck.position[2]) <= 100:
+                if abs(x) <= DUCK_HITBOX and abs(y) <= DUCK_HITBOX and abs(z) <= DUCK_HITBOX:
                     duck.state = 'falling'
                     BULLETS.remove(bullet)
                     print('hit')
@@ -650,8 +658,18 @@ def idle(_=None):
             
     # ---------------------------------- #
 
-    for bullet in BULLETS:
-        bullet.update()
+    for duck in DUCKS:
+        _x, _y, _z = duck.position
+        dx = abs(_x - PLAYER_X)
+        dy = abs(_y - PLAYER_Y)
+        dz = abs(_z - PLAYER_Z)
+
+        if dx <= DUCK_HITBOX/2 and dy <= DUCK_HITBOX/2:
+            if 1 < dz <= PLAYER_Z:
+                SCORE += 25
+            elif dy == 1:
+                SCORE += 10
+            DUCKS.remove(duck)
     
 
     #TODO update game state
