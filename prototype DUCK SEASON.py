@@ -13,7 +13,7 @@ WINDOW_WIDTH = 1280
 WINDOW_HEIGHT = 720
 
 # Camera & Player
-PLAYER_Z = 25
+PLAYER_Z = 0.01
 PLAYER_SPEED = 1.5
 PLAYER_R_INITIAL = -90
 LOOK_SPEED_Z = 15
@@ -38,7 +38,7 @@ GROUND_DUCK_COUNT = 10
 DUCK_FLYING_Z_MIN = 300
 DUCK_FLYING_Z_MAX = 600
 DUCK_SPEED = 1.0
-DUCK_HITBOX_RADIUS = 270.0  # Increased to match 6x scale
+DUCK_HITBOX_RADIUS = 135.0  # Decreased hitbox
 
 # Bullet
 BULLET_SPEED = 10.0
@@ -72,12 +72,19 @@ class Duck:
         self.fall_speed = 0.0
         self.color_scheme = random.choice(duck_color_schemes)
 
-    def update(self):
+    def update(self, speed_multiplier=1.0, game=None):
         if self.state == 'flying':
             self.wing_angle += 10.0
             # Simple movement logic
-            self.position[0] += self.direction[0] * DUCK_SPEED
-            self.position[1] += self.direction[1] * DUCK_SPEED
+            self.position[0] += self.direction[0] * DUCK_SPEED * speed_multiplier
+            self.position[1] += self.direction[1] * DUCK_SPEED * speed_multiplier
+
+            # Check collision with trees
+            if game and game.is_point_in_tree(self.position[0], self.position[1], self.position[2]):
+                self.direction[0] = -self.direction[0]
+                self.direction[1] = -self.direction[1]
+                self.position[0] += self.direction[0] * DUCK_SPEED * speed_multiplier
+                self.position[1] += self.direction[1] * DUCK_SPEED * speed_multiplier
 
             # If duck flies too far, reset its position
             if abs(self.position[0]) > GROUND_HALF_LENGTH or abs(self.position[1]) > GROUND_HALF_LENGTH:
@@ -91,7 +98,7 @@ class Duck:
                 self.position[2] = 0
                 self.dead_duck()
 
-    def draw(self):
+    def draw(self, night_mode=False, night_vision=False):
         glPushMatrix()
         glTranslatef(self.position[0], self.position[1], self.position[2])
 
@@ -105,16 +112,23 @@ class Duck:
         elif self.state == 'falling':
             glRotatef(90, 1, 0, 0)
 
+        # Camouflage in night mode unless night vision is on
+        if night_mode and not night_vision:
+            # Darker colors for camouflage
+            camo_scheme = {"light": (0.1, 0.1, 0.1), "med": (0.05, 0.05, 0.05), "medium": (0.02, 0.02, 0.02), "dark": (0.01, 0.01, 0.01)}
+        else:
+            camo_scheme = self.color_scheme
+
         # Body - increased scales by 6x (3x * 2x)
         glPushMatrix()
-        glColor3f(*self.color_scheme["light"])
+        glColor3f(*camo_scheme["light"])
         glScalef(9.0, 6.0, 15.0)  # 4.5 * 2, 3.0 * 2, 7.5 * 2
         glutSolidCube(1.5)
         glPopMatrix()
 
         # Neck - increased scales by 6x
         glPushMatrix()
-        glColor3f(*self.color_scheme["dark"])
+        glColor3f(*camo_scheme["dark"])
         glScalef(4.2, 3.0, 4.2)  # 2.1 * 2, 1.5 * 2, 2.1 * 2
         glTranslatef(0, 1.8, 9.0)  # 0.9 * 2, 4.5 * 2
         glutSolidCube(1.0)
@@ -122,7 +136,7 @@ class Duck:
 
         # Head - increased scales by 6x
         glPushMatrix()
-        glColor3f(*self.color_scheme["med"])
+        glColor3f(*camo_scheme["med"])
         glScalef(6.6, 6.0, 6.0)  # 3.3 * 2, 3.0 * 2, 3.0 * 2
         glTranslatef(0, 1.2, 8.4)  # 0.6 * 2, 4.2 * 2
         glutSolidCube(1.0)
@@ -130,7 +144,7 @@ class Duck:
 
         # Beak - increased scales by 6x
         glPushMatrix()
-        glColor3f(*self.color_scheme["dark"])
+        glColor3f(*camo_scheme["dark"])
         glScalef(3.6, 1.2, 3.0)  # 1.8 * 2, 0.6 * 2, 1.5 * 2
         glTranslatef(0, 1.8, 20.1)  # 0.9 * 2, 10.05 * 2
         glutSolidCube(1)
@@ -149,7 +163,7 @@ class Duck:
         wing_delta = 25 * sin(radians(self.wing_angle))
         for i in [-1, 1]:
             glPushMatrix()
-            glColor3f(*self.color_scheme["medium"])
+            glColor3f(*camo_scheme["medium"])
             glTranslatef(i * 4.8, 1.2, 0.0)  # 2.4 * 2, 0.6 * 2, 0.0
             if self.state == 'flying':
                 glRotatef(i * (-wing_delta + 30), 0, 0, 1)
@@ -160,7 +174,7 @@ class Duck:
         # Legs - increased scales by 6x
         for i in [-1, 1]:
             glPushMatrix()
-            glColor3f(*self.color_scheme["dark"])
+            glColor3f(*camo_scheme["dark"])
             glScalef(1.8, 6.0, 1.8)  # 0.9 * 2, 3.0 * 2, 0.9 * 2
             glTranslatef(i * 6.0, -3.6, -3.0)  # 3.0 * 2, -1.8 * 2, -1.5 * 2
             glutSolidCube(1.0)
@@ -168,7 +182,7 @@ class Duck:
 
         # Tail - increased scales by 6x
         glPushMatrix()
-        glColor3f(*self.color_scheme["dark"])
+        glColor3f(*camo_scheme["dark"])
         glTranslatef(0, -0.6, -6.0)  # -0.3 * 2, -3.0 * 2
         glRotatef(20, 1, 0, 0)
         glScalef(10.8, 1.8, 14.4)  # 5.4 * 2, 0.9 * 2, 7.2 * 2
@@ -199,22 +213,28 @@ class GroundDuck(Duck):
         self.walk_timer = 0.0
         self.walk_duration = random.uniform(2.0, 5.0)
 
-    def update(self):
+    def update(self, speed_multiplier=1.0, game=None):
         if self.state == 'walking':
             self.walk_timer += 0.016  # Assuming 60 FPS
             if self.walk_timer >= self.walk_duration:
                 self.walk_direction = -self.walk_direction
                 self.walk_timer = 0.0
                 self.walk_duration = random.uniform(2.0, 5.0)
-            self.position[0] += self.walk_direction * self.walk_speed
+            self.position[0] += self.walk_direction * self.walk_speed * speed_multiplier
             # Keep on ground
             self.position[2] = 0
+
+            # Check collision with trees
+            if game and game.is_point_in_tree(self.position[0], self.position[1], self.position[2]):
+                self.walk_direction = -self.walk_direction
+                self.position[0] += self.walk_direction * self.walk_speed * speed_multiplier
+
             # If walk too far, reset
             if abs(self.position[0]) > GROUND_HALF_LENGTH:
                 self.position[0] = self.initial_pos[0]
                 self.walk_direction = random.choice([-1, 1])
 
-    def draw(self):
+    def draw(self, night_mode=False, night_vision=False):
         glPushMatrix()
         glTranslatef(self.position[0], self.position[1], self.position[2])
 
@@ -226,16 +246,22 @@ class GroundDuck(Duck):
         if self.state == 'dead':
             glRotatef(180, 1, 0, 0)
 
+        # Camouflage in night mode unless night vision is on
+        if night_mode and not night_vision:
+            camo_scheme = {"light": (0.1, 0.1, 0.1), "med": (0.05, 0.05, 0.05), "medium": (0.02, 0.02, 0.02), "dark": (0.01, 0.01, 0.01)}
+        else:
+            camo_scheme = self.color_scheme
+
         # Body - increased scales by 6x (3x * 2x)
         glPushMatrix()
-        glColor3f(*self.color_scheme["light"])
+        glColor3f(*camo_scheme["light"])
         glScalef(9.0, 6.0, 15.0)  # 4.5 * 2, 3.0 * 2, 7.5 * 2
         glutSolidCube(1.5)
         glPopMatrix()
 
         # Neck - increased scales by 6x
         glPushMatrix()
-        glColor3f(*self.color_scheme["dark"])
+        glColor3f(*camo_scheme["dark"])
         glScalef(4.2, 3.0, 4.2)  # 2.1 * 2, 1.5 * 2, 2.1 * 2
         glTranslatef(0, 1.8, 9.0)  # 0.9 * 2, 4.5 * 2
         glutSolidCube(1.0)
@@ -243,7 +269,7 @@ class GroundDuck(Duck):
 
         # Head - increased scales by 6x
         glPushMatrix()
-        glColor3f(*self.color_scheme["med"])
+        glColor3f(*camo_scheme["med"])
         glScalef(6.6, 6.0, 6.0)  # 3.3 * 2, 3.0 * 2, 3.0 * 2
         glTranslatef(0, 1.2, 8.4)  # 0.6 * 2, 4.2 * 2
         glutSolidCube(1.0)
@@ -251,7 +277,7 @@ class GroundDuck(Duck):
 
         # Beak - increased scales by 6x
         glPushMatrix()
-        glColor3f(*self.color_scheme["dark"])
+        glColor3f(*camo_scheme["dark"])
         glScalef(3.6, 1.2, 3.0)  # 1.8 * 2, 0.6 * 2, 1.5 * 2
         glTranslatef(0, 1.8, 20.1)  # 0.9 * 2, 10.05 * 2
         glutSolidCube(1)
@@ -270,7 +296,7 @@ class GroundDuck(Duck):
         wing_delta = 25 * sin(radians(self.wing_angle))
         for i in [-1, 1]:
             glPushMatrix()
-            glColor3f(*self.color_scheme["medium"])
+            glColor3f(*camo_scheme["medium"])
             glTranslatef(i * 4.8, 1.2, 0.0)  # 2.4 * 2, 0.6 * 2, 0.0
             if self.state == 'flying':
                 glRotatef(i * (-wing_delta + 30), 0, 0, 1)
@@ -281,7 +307,7 @@ class GroundDuck(Duck):
         # Legs - increased scales by 6x
         for i in [-1, 1]:
             glPushMatrix()
-            glColor3f(*self.color_scheme["dark"])
+            glColor3f(*camo_scheme["dark"])
             glScalef(1.8, 6.0, 1.8)  # 0.9 * 2, 3.0 * 2, 0.9 * 2
             glTranslatef(i * 6.0, -3.6, -3.0)  # 3.0 * 2, -1.8 * 2, -1.5 * 2
             glutSolidCube(1.0)
@@ -289,7 +315,7 @@ class GroundDuck(Duck):
 
         # Tail - increased scales by 6x
         glPushMatrix()
-        glColor3f(*self.color_scheme["dark"])
+        glColor3f(*camo_scheme["dark"])
         glTranslatef(0, -0.6, -6.0)  # -0.3 * 2, -3.0 * 2
         glRotatef(20, 1, 0, 0)
         glScalef(10.8, 1.8, 14.4)  # 5.4 * 2, 0.9 * 2, 7.2 * 2
@@ -331,12 +357,12 @@ class HUD:
         self.magazine_size = 10
         self.health = 100
         self.messages = []
-        self.skin = "default"
-        self.armor = False
         self.night_vision = False
         self.weapons = ["Shotgun"]
         self.reticle_good = True
         self.crosshair_size = 10
+        self.last_shot_time = 0.0
+        self.auto_fire_active = False
 
     def draw_text(self, x, y, text, font=GLUT_BITMAP_HELVETICA_18):
         glRasterPos2f(x, y)
@@ -348,8 +374,13 @@ class HUD:
         self.messages.append((f"+{value} pts", time.time()))
 
     def shoot(self):
+        now = time.time()
+        cooldown = 0.1 if hasattr(self, 'auto_fire_active') and self.auto_fire_active else 0.5
+        if now - self.last_shot_time < cooldown:
+            return False
         if self.ammo > 0:
             self.ammo -= 1
+            self.last_shot_time = now
             return True
         else:
             self.messages.append(("Out of Ammo! Press R to Reload", time.time()))
@@ -359,7 +390,7 @@ class HUD:
         self.ammo = self.magazine_size
         self.messages.append(("Reloaded!", time.time()))
 
-    def render(self, window_w, window_h, paused):
+    def render(self, window_w, window_h, paused, night_mode=False, auto_fire_active=False, cooldown_remaining=0):
         glMatrixMode(GL_PROJECTION)
         glPushMatrix()
         glLoadIdentity()
@@ -378,6 +409,16 @@ class HUD:
         glColor3f(1, 1, 1)
         self.draw_text(20, window_h - 30, f"Score: {self.score}")
         self.draw_text(20, window_h - 55, f"Ammo: {self.ammo}/{self.magazine_size}")
+        if night_mode:
+            self.draw_text(20, window_h - 80, "Night Mode")
+        if self.night_vision:
+            self.draw_text(20, window_h - 105, "Night Vision Active")
+        if auto_fire_active:
+            glColor3f(0, 1, 0)
+            self.draw_text(20, window_h - 130, "Auto Fire Active")
+        elif cooldown_remaining > 0:
+            glColor3f(1, 0, 0)
+            self.draw_text(20, window_h - 130, f"Auto Fire Cooldown: {int(cooldown_remaining)}s")
 
         # Draw Paused Message
         if paused:
@@ -416,17 +457,20 @@ class HUD:
 
 
 class Shop:
-    def __init__(self, hud):
+    def __init__(self, hud, game):
         self.active = False
         self.hud = hud
+        self.game = game
         self.currency = 0
         self.items = [
             {"name": "Bigger Magazine", "key": "G", "description": "+5 bullets per reload", "cost": 100},
-            {"name": "Armor Vest", "key": "H", "description": "Cosmetic Armor (not implemented)", "cost": 250},
+            {"name": "Night Vision", "key": "N", "description": "See ducks in night mode", "cost": 50},
+            {"name": "Auto Fire Mode", "key": "A", "description": "Auto-lock on ducks, increase fire rate for 10s", "cost": 200},
         ]
         self.last_message = ""
         self.last_message_time = 0
         self.active_effects = {}
+        self.cooldown_end_time = 0
 
     def toggle(self):
         self.active = not self.active
@@ -436,6 +480,14 @@ class Shop:
         key = key.decode("utf-8").upper()
         for item in self.items:
             if item["key"] == key:
+                if item["name"] == "Night Vision" and not self.game.night_mode:
+                    self.last_message = "Can only buy at night!"
+                    self.last_message_time = time.time()
+                    return True
+                if item["name"] == "Auto Fire Mode" and time.time() < self.cooldown_end_time:
+                    self.last_message = "Auto Fire on cooldown!"
+                    self.last_message_time = time.time()
+                    return True
                 if self.currency >= item["cost"]:
                     self.currency -= item["cost"]
                     self.apply_effect(item)
@@ -452,9 +504,14 @@ class Shop:
             self.hud.magazine_size += 5
             self.hud.reload()
             self.hud.messages.append(("Magazine +5", time.time()))
-        elif name == "Armor Vest":
-            self.hud.armor = True
-            self.hud.messages.append(("Armor Equipped", time.time()))
+        elif name == "Night Vision":
+            self.hud.night_vision = True
+            self.hud.messages.append(("Night Vision Equipped", time.time()))
+        elif name == "Auto Fire Mode":
+            self.game.auto_fire_active = True
+            self.game.auto_fire_end_time = time.time() + 10
+            self.game.last_auto_shot = time.time()
+            self.hud.messages.append(("Auto Fire Activated for 10s", time.time()))
 
     def draw_text(self, x, y, text, font=GLUT_BITMAP_HELVETICA_18):
         glRasterPos2f(x, y)
@@ -492,6 +549,8 @@ class Shop:
         y_offset = 0
         for item in self.items:
             color = (0.5, 1, 0.5) if self.currency >= item["cost"] else (1, 0.3, 0.3)
+            if item["name"] == "Auto Fire Mode" and time.time() < self.cooldown_end_time:
+                color = (1, 0.3, 0.3)
             glColor3f(*color)
             self.draw_text(cx - 250, cy + 60 - y_offset,
                                 f"[{item['key']}] {item['name']} ({item['cost']} pts) - {item['description']}")
@@ -529,12 +588,25 @@ class Game:
         self.bullets = []
         self.tree_positions = []
         self.hud = HUD()
-        self.shop = Shop(self.hud)
+        self.shop = Shop(self.hud, self)
         self.paused = False
+
+        # Difficulty
+        self.speed_multiplier = 1.0
+        self.night_mode = False
+
+        # Auto Fire
+        self.auto_fire_active = False
+        self.auto_fire_end_time = 0
+        self.last_auto_shot = 0
+
+        # Duck Spawning
+        self.last_spawn_time = time.time()
+        self.spawn_interval = random.uniform(2.0, 5.0)
 
         # Fallback teapot rotation (for shop overlay)
         self.teapot_angle = 0.0
-        
+
         self.initialize_game()
 
     def initialize_game(self):
@@ -577,29 +649,50 @@ class Game:
             y = random.uniform(-GROUND_HALF_LENGTH, GROUND_HALF_LENGTH)
             self.tree_positions.append((x, y))
 
+    def is_point_in_tree(self, px, py, pz):
+        for tx, ty in self.tree_positions:
+            # Trunk
+            if (tx - TREE_TRUNK_RADIUS <= px <= tx + TREE_TRUNK_RADIUS and
+                ty - TREE_TRUNK_RADIUS <= py <= ty + TREE_TRUNK_RADIUS and
+                1 <= pz <= TREE_TRUNK_HEIGHT):
+                return True
+            # Leaves
+            if (tx - TREE_LEAVES_RADIUS <= px <= tx + TREE_LEAVES_RADIUS and
+                ty - TREE_LEAVES_RADIUS <= py <= ty + TREE_LEAVES_RADIUS and
+                TREE_TRUNK_HEIGHT <= pz <= TREE_TRUNK_HEIGHT + TREE_LEAVES_HEIGHT):
+                return True
+        return False
+
     def update_player(self):
-        if self.shop.active: 
+        if self.shop.active:
             return
+
+        # Calculate new position
+        new_pos = self.player_pos[:]
 
         # Forward/Backward
         move_vec_x = -cos(radians(self.player_r))
         move_vec_y = -sin(radians(self.player_r))
         if self.key_states[b'w']:
-            self.player_pos[0] += move_vec_x * PLAYER_SPEED
-            self.player_pos[1] += move_vec_y * PLAYER_SPEED
+            new_pos[0] += move_vec_x * PLAYER_SPEED
+            new_pos[1] += move_vec_y * PLAYER_SPEED
         if self.key_states[b's']:
-            self.player_pos[0] -= move_vec_x * PLAYER_SPEED
-            self.player_pos[1] -= move_vec_y * PLAYER_SPEED
+            new_pos[0] -= move_vec_x * PLAYER_SPEED
+            new_pos[1] -= move_vec_y * PLAYER_SPEED
 
         # Strafe Left/Right
         strafe_vec_x = -cos(radians(self.player_r + 90))
         strafe_vec_y = -sin(radians(self.player_r + 90))
         if self.key_states[b'a']:
-            self.player_pos[0] += strafe_vec_x * PLAYER_SPEED
-            self.player_pos[1] += strafe_vec_y * PLAYER_SPEED
+            new_pos[0] += strafe_vec_x * PLAYER_SPEED
+            new_pos[1] += strafe_vec_y * PLAYER_SPEED
         if self.key_states[b'd']:
-            self.player_pos[0] -= strafe_vec_x * PLAYER_SPEED
-            self.player_pos[1] -= strafe_vec_y * PLAYER_SPEED
+            new_pos[0] -= strafe_vec_x * PLAYER_SPEED
+            new_pos[1] -= strafe_vec_y * PLAYER_SPEED
+
+        # Check collision with trees
+        if not self.is_point_in_tree(new_pos[0], new_pos[1], PLAYER_Z):
+            self.player_pos = new_pos
 
         # Boundary checks
         self.player_pos[0] = max(-GROUND_HALF_LENGTH, min(GROUND_HALF_LENGTH, self.player_pos[0]))
@@ -618,9 +711,9 @@ class Game:
         self.player_pitch += delta_y * 0.05
         self.player_pitch = max(-90, min(90, self.player_pitch))  # Limit pitch
 
-        # Recenter mouse to prevent it from leaving the window
+        # Recenter mouse to
         if abs(delta_x) > 2 or abs(delta_y) > 2:  # Deadzone
-             glutWarpPointer(int(center_x), int(center_y))
+            glutWarpPointer(int(center_x), int(center_y))
 
     def keyboard_down(self, key, x, y):
         if key in self.key_states:
@@ -631,6 +724,8 @@ class Game:
             self.shop.toggle()
         elif key.lower() == b'p':
             self.paused = not self.paused
+        elif key == b'\t':
+            self.night_mode = not self.night_mode
         elif key.lower() == b'q':
             glutLeaveMainLoop()
             sys.exit()
@@ -658,7 +753,7 @@ class Game:
              self.player_pitch = min(self.player_pitch + LOOK_DELTA_ANGLE, 90)
         if button == 4 and state == GLUT_DOWN: # Scroll down
              self.player_pitch = max(self.player_pitch - LOOK_DELTA_ANGLE, -90)
-            
+
     def shoot(self):
         if self.hud.shoot():
             # Calculate bullet direction vector using pitch
@@ -666,15 +761,15 @@ class Game:
             look_point = [
                 self.player_pos[0] - 200 * cos(radians(self.player_r)) * cos(radians(self.player_pitch)),
                 self.player_pos[1] - 200 * sin(radians(self.player_r)) * cos(radians(self.player_pitch)),
-                self.player_pos[2] + 200 * sin(radians(self.player_pitch))
+                self.player_pos[2] + 200 * sin(radians(self.player_pitch)) - 0.01
             ]
-            
+
             direction = [
                 look_point[0] - cam_pos[0],
                 look_point[1] - cam_pos[1],
                 look_point[2] - cam_pos[2],
             ]
-            
+
             # Normalize the vector
             mag = sqrt(sum(d**2 for d in direction))
             if mag > 0:
@@ -686,18 +781,78 @@ class Game:
             glutPostRedisplay()
             return
 
+        # Update difficulty based on score
+        if self.night_mode:
+            self.speed_multiplier = 2.0
+        elif self.hud.score >= 50:
+            self.speed_multiplier = 1.5
+        else:
+            self.speed_multiplier = 1.0
+
         # Update player & world only when shop is closed
         self.update_player()
 
         # Update ducks
         for duck in self.active_ducks:
-            duck.update()
+            duck.update(self.speed_multiplier, self)
+
+        # Remove dead ducks
+        self.active_ducks = [d for d in self.active_ducks if d.state != 'dead']
+
+        # Spawn new ducks if needed
+        now = time.time()
+        if now - self.last_spawn_time > self.spawn_interval:
+            flying = [d for d in self.active_ducks if not isinstance(d, GroundDuck)]
+            ground = [d for d in self.active_ducks if isinstance(d, GroundDuck)]
+            if len(flying) < DUCK_COUNT:
+                self.active_ducks.append(Duck(random.uniform(-GROUND_HALF_LENGTH, GROUND_HALF_LENGTH),
+                                               random.uniform(-GROUND_HALF_LENGTH, GROUND_HALF_LENGTH),
+                                               random.uniform(DUCK_FLYING_Z_MIN, DUCK_FLYING_Z_MAX)))
+            if len(ground) < GROUND_DUCK_COUNT:
+                self.active_ducks.append(GroundDuck(random.uniform(-GROUND_HALF_LENGTH, GROUND_HALF_LENGTH),
+                                                    random.uniform(-GROUND_HALF_LENGTH, GROUND_HALF_LENGTH),
+                                                    0))
+            self.last_spawn_time = now
+            self.spawn_interval = random.uniform(2.0, 5.0)
 
         # Update bullets and check lifespan
-        now = time.time()
         self.bullets = [b for b in self.bullets if now - b.creation_time < BULLET_LIFESPAN]
         for bullet in self.bullets:
             bullet.update()
+
+        # Remove bullets that hit trees or go below ground
+        self.bullets = [b for b in self.bullets if not (self.is_point_in_tree(b.position[0], b.position[1], b.position[2]) or b.position[2] < 0)]
+
+        # Auto Fire Logic
+        if self.auto_fire_active:
+            if now > self.auto_fire_end_time:
+                self.auto_fire_active = False
+                self.shop.cooldown_end_time = now + 60
+                self.hud.messages.append(("Auto Fire Deactivated", now))
+            elif now - self.last_auto_shot > 0.2:
+                self.last_auto_shot = now
+                # Find nearest duck
+                nearest_duck = None
+                min_dist = float('inf')
+                for duck in self.active_ducks:
+                    if duck.state in ['flying', 'walking']:
+                        dist = sqrt(sum((p1 - p2)**2 for p1, p2 in zip(self.player_pos, duck.position)))
+                        if dist < min_dist:
+                            min_dist = dist
+                            nearest_duck = duck
+                if nearest_duck:
+                    # Calculate direction to duck
+                    direction = [
+                        nearest_duck.position[0] - self.player_pos[0],
+                        nearest_duck.position[1] - self.player_pos[1],
+                        nearest_duck.position[2] - self.player_pos[2],
+                    ]
+                    mag = sqrt(sum(d**2 for d in direction))
+                    if mag > 0:
+                        norm_direction = [d / mag for d in direction]
+                        self.bullets.append(Bullet(self.player_pos, norm_direction))
+                        if not self.hud.auto_fire_active:
+                            self.hud.ammo -= 1
 
         # Collision detection
         bullets_to_remove = []
@@ -707,204 +862,153 @@ class Game:
                     dist_sq = sum((p1 - p2)**2 for p1, p2 in zip(bullet.position, duck.position))
                     if dist_sq < DUCK_HITBOX_RADIUS**2:
                         if duck.drop_duck():
-                            self.hud.add_score(10)
-                            self.shop.currency += 10
+                            # Double points in night mode
+                            points = 20 if self.night_mode else 10
+                            self.hud.add_score(points)
+                            self.shop.currency += points
                             bullets_to_remove.append(i)
                             break
             if i in bullets_to_remove:
                 continue
 
-        # Remove bullets that hit something
-        self.bullets = [b for i, b in enumerate(self.bullets) if i not in bullets_to_remove]
-
-        # Rotate the teapot (for fallback scene behind shop)
-        if self.shop.active:
-            self.teapot_angle = (self.teapot_angle + 1.0) % 360.0
-
         glutPostRedisplay()
 
     def draw_environment(self):
-        # Draw Ground
+        # Draw ground
+        glPushMatrix()
+        glColor3f(0.2, 0.8, 0.2)  # Green ground
         glBegin(GL_QUADS)
-        glColor3f(0.0, 0.5, 0.0) # Green
         glVertex3f(-GROUND_HALF_LENGTH, -GROUND_HALF_LENGTH, 0)
         glVertex3f(GROUND_HALF_LENGTH, -GROUND_HALF_LENGTH, 0)
         glVertex3f(GROUND_HALF_LENGTH, GROUND_HALF_LENGTH, 0)
         glVertex3f(-GROUND_HALF_LENGTH, GROUND_HALF_LENGTH, 0)
         glEnd()
-        
-        # Draw Sky
+        glPopMatrix()
+
+        # Draw skybox
+        glPushMatrix()
+        if self.night_mode:
+            glColor3f(0.0, 0.0, 0.0)  # Black sky for night
+        else:
+            glColor3f(0.5, 0.7, 1.0)  # Blue sky
         glBegin(GL_QUADS)
-        glColor3f(0.5, 0.8, 1.0) # Light Blue
-        # Front
-        glVertex3f(-GROUND_HALF_LENGTH, GROUND_HALF_LENGTH, 0)
-        glVertex3f(GROUND_HALF_LENGTH, GROUND_HALF_LENGTH, 0)
-        glVertex3f(GROUND_HALF_LENGTH, GROUND_HALF_LENGTH, SKYBOX_HEIGHT)
-        glVertex3f(-GROUND_HALF_LENGTH, GROUND_HALF_LENGTH, SKYBOX_HEIGHT)
         # Back
-        glVertex3f(-GROUND_HALF_LENGTH, -GROUND_HALF_LENGTH, 0)
-        glVertex3f(GROUND_HALF_LENGTH, -GROUND_HALF_LENGTH, 0)
-        glVertex3f(GROUND_HALF_LENGTH, -GROUND_HALF_LENGTH, SKYBOX_HEIGHT)
         glVertex3f(-GROUND_HALF_LENGTH, -GROUND_HALF_LENGTH, SKYBOX_HEIGHT)
-        # Left
+        glVertex3f(GROUND_HALF_LENGTH, -GROUND_HALF_LENGTH, SKYBOX_HEIGHT)
+        glVertex3f(GROUND_HALF_LENGTH, -GROUND_HALF_LENGTH, 0)
         glVertex3f(-GROUND_HALF_LENGTH, -GROUND_HALF_LENGTH, 0)
-        glVertex3f(-GROUND_HALF_LENGTH, GROUND_HALF_LENGTH, 0)
+        # Front
         glVertex3f(-GROUND_HALF_LENGTH, GROUND_HALF_LENGTH, SKYBOX_HEIGHT)
-        glVertex3f(-GROUND_HALF_LENGTH, -GROUND_HALF_LENGTH, SKYBOX_HEIGHT)
-        # Right
-        glVertex3f(GROUND_HALF_LENGTH, -GROUND_HALF_LENGTH, 0)
-        glVertex3f(GROUND_HALF_LENGTH, GROUND_HALF_LENGTH, 0)
         glVertex3f(GROUND_HALF_LENGTH, GROUND_HALF_LENGTH, SKYBOX_HEIGHT)
+        glVertex3f(GROUND_HALF_LENGTH, GROUND_HALF_LENGTH, 0)
+        glVertex3f(-GROUND_HALF_LENGTH, GROUND_HALF_LENGTH, 0)
+        # Left
+        glVertex3f(-GROUND_HALF_LENGTH, -GROUND_HALF_LENGTH, SKYBOX_HEIGHT)
+        glVertex3f(-GROUND_HALF_LENGTH, GROUND_HALF_LENGTH, SKYBOX_HEIGHT)
+        glVertex3f(-GROUND_HALF_LENGTH, GROUND_HALF_LENGTH, 0)
+        glVertex3f(-GROUND_HALF_LENGTH, -GROUND_HALF_LENGTH, 0)
+        # Right
         glVertex3f(GROUND_HALF_LENGTH, -GROUND_HALF_LENGTH, SKYBOX_HEIGHT)
+        glVertex3f(GROUND_HALF_LENGTH, GROUND_HALF_LENGTH, SKYBOX_HEIGHT)
+        glVertex3f(GROUND_HALF_LENGTH, GROUND_HALF_LENGTH, 0)
+        glVertex3f(GROUND_HALF_LENGTH, -GROUND_HALF_LENGTH, 0)
+        # Top
+        glVertex3f(-GROUND_HALF_LENGTH, -GROUND_HALF_LENGTH, SKYBOX_HEIGHT)
+        glVertex3f(GROUND_HALF_LENGTH, -GROUND_HALF_LENGTH, SKYBOX_HEIGHT)
+        glVertex3f(GROUND_HALF_LENGTH, GROUND_HALF_LENGTH, SKYBOX_HEIGHT)
+        glVertex3f(-GROUND_HALF_LENGTH, GROUND_HALF_LENGTH, SKYBOX_HEIGHT)
         glEnd()
+        glPopMatrix()
 
-        # Draw Trees
+    def draw_world(self):
+        # Draw trees
         for x, y in self.tree_positions:
-            self.draw_tree(x,y)
-    
-    def draw_tree(self, x, y):
-        glPushMatrix()
-        glTranslatef(x, y, 0)
-        # Trunk
-        glColor3f(0.5, 0.35, 0.05)
-        quadric = gluNewQuadric()
-        gluCylinder(quadric, TREE_TRUNK_RADIUS, TREE_TRUNK_RADIUS, TREE_TRUNK_HEIGHT, 12, 1)
-        # Leaves
-        glTranslatef(0, 0, TREE_TRUNK_HEIGHT)
-        glColor3f(0.0, 0.5, 0.0)
-        gluCylinder(quadric, TREE_LEAVES_RADIUS, 0, TREE_LEAVES_HEIGHT, 12, 1)
-        glPopMatrix()
+            glPushMatrix()
+            glTranslatef(x, y, 0)
+            # Trunk
+            glColor3f(0.4, 0.2, 0.0)
+            glPushMatrix()
+            glTranslatef(0, 0, TREE_TRUNK_HEIGHT / 2)
+            glScalef(TREE_TRUNK_RADIUS, TREE_TRUNK_RADIUS, TREE_TRUNK_HEIGHT)
+            glutSolidCube(1)
+            glPopMatrix()
+            # Leaves
+            glColor3f(0.0, 0.5, 0.0)
+            glPushMatrix()
+            glTranslatef(0, 0, TREE_TRUNK_HEIGHT + TREE_LEAVES_HEIGHT / 2)
+            glScalef(TREE_LEAVES_RADIUS, TREE_LEAVES_RADIUS, TREE_LEAVES_HEIGHT)
+            glutSolidCube(1)
+            glPopMatrix()
+            glPopMatrix()
 
-    def draw_shotgun_model(self):
-        # Stock
-        glPushMatrix(); glColor3f(*gun_brown); glTranslatef(0.3, -0.3, 1.9); glScalef(0.4, 0.8, 2.0); glRotatef(20, 1, 0, 0); glutSolidCube(1.0); glPopMatrix()
-        # Body
-        glPushMatrix(); glColor3f(*gun_black); glTranslatef(0.3, -0.2, 0.7); glScalef(0.5, 0.8, 1.3); glutSolidCube(1.0); glPopMatrix()
-        # Handle
-        glPushMatrix(); glColor3f(*gun_black); glTranslatef(0.25, -0.48, 0.0); glScalef(0.5, 1.2, 0.5); glutSolidCube(1.0); glPopMatrix()
-        # Trigger Guard
-        glPushMatrix(); glColor3f(*gun_black); glTranslatef(0.3, -0.5, -0.5); glScalef(0.4, 0.4, 0.2); glutSolidCube(1.0); glPopMatrix()
-        # Pump
-        glPushMatrix(); glColor3f(*gun_dark_brown); glTranslatef(0.25, -0.15, -1.0); glScalef(1.0, 0.5, 1.8); glutSolidCube(1.0); glPopMatrix()
-        # Magazine Tube
-        glPushMatrix(); glColor3f(*gun_black); glTranslatef(0.25, -0.3, -1.5); glScalef(0.4, 0.4, 3.0); glutSolidCube(1.0); glPopMatrix()
-        # Barrel
-        glPushMatrix(); glColor3f(*gun_black); glTranslatef(0.25, 0.1, -2.5); glScalef(0.4, 0.4, 4.0); glutSolidCube(1.0); glPopMatrix()
-        # Sights
-        glPushMatrix(); glColor3f(*gun_black); glTranslatef(0.25, 0.3, -4.3); glScalef(0.1, 0.2, 0.2); glutSolidCube(1.0); glPopMatrix()
-    
-    def draw_teapot_fallback(self, win_w, win_h):
-        """Draw the rotating teapot behind the shop overlay."""
-        # Save current projection/modelview
-        glMatrixMode(GL_PROJECTION)
-        glPushMatrix()
-        glLoadIdentity()
-        gluPerspective(45.0, float(win_w)/float(win_h), 1.0, 100.0)
+        # Draw ducks
+        for duck in self.active_ducks:
+            duck.draw(self.night_mode, self.hud.night_vision)
 
-        glMatrixMode(GL_MODELVIEW)
-        glPushMatrix()
-        glLoadIdentity()
-
-        # Place teapot
-        glTranslatef(0.0, 0.0, -6.0)
-        glRotatef(self.teapot_angle, 0.0, 1.0, 0.0)
-        glColor3f(1.0, 0.5, 0.0)
-        glutSolidTeapot(1.0)
-
-        # Restore matrices
-        glPopMatrix()
-        glMatrixMode(GL_PROJECTION)
-        glPopMatrix()
-        glMatrixMode(GL_MODELVIEW)
+        # Draw bullets
+        for bullet in self.bullets:
+            bullet.draw()
 
     def display(self):
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         glLoadIdentity()
 
-        # Setup 3D Projection & Camera for game scene
-        glMatrixMode(GL_PROJECTION)
-        glLoadIdentity()
-        gluPerspective(FOV_Y, WINDOW_WIDTH / WINDOW_HEIGHT, 0.1, 3000)
-        glMatrixMode(GL_MODELVIEW)
-        glLoadIdentity()
-
-        # Camera LookAt with pitch
-        look_x_target = self.player_pos[0] - 200 * cos(radians(self.player_r)) * cos(radians(self.player_pitch))
-        look_y_target = self.player_pos[1] - 200 * sin(radians(self.player_r)) * cos(radians(self.player_pitch))
-        look_z_target = self.player_pos[2] + 200 * sin(radians(self.player_pitch))
-        gluLookAt(self.player_pos[0], self.player_pos[1], self.player_pos[2],
-                  look_x_target, look_y_target, look_z_target,
+        # Set up camera
+        cam_pos = self.player_pos
+        look_point = [
+            self.player_pos[0] - 200 * cos(radians(self.player_r)) * cos(radians(self.player_pitch)),
+            self.player_pos[1] - 200 * sin(radians(self.player_r)) * cos(radians(self.player_pitch)),
+            self.player_pos[2] + 200 * sin(radians(self.player_pitch))
+        ]
+        gluLookAt(cam_pos[0], cam_pos[1], cam_pos[2],
+                  look_point[0], look_point[1], look_point[2],
                   0, 0, 1)
 
-        # Render 3D Scene
+        # Draw environment and world
         self.draw_environment()
-        for duck in self.active_ducks:
-            duck.draw()
-        for bullet in self.bullets:
-            bullet.draw()
+        self.draw_world()
 
-        # Render First-Person Gun
-        # Clear the depth buffer to draw the gun on top of everything
-        glClear(GL_DEPTH_BUFFER_BIT)
-        glPushMatrix()
-        # Position gun in front of camera
-        glTranslatef(3, -5, -10)
-        glRotatef(-10, 1, 0, 0)
-        glRotatef(5, 0, 1, 0)
-        self.draw_shotgun_model()
-        glPopMatrix()
+        # Draw HUD
+        cooldown_remaining = max(0, self.shop.cooldown_end_time - time.time())
+        self.hud.render(WINDOW_WIDTH, WINDOW_HEIGHT, self.paused, self.night_mode, self.auto_fire_active, cooldown_remaining)
 
-        # If the shop is open, draw the rotating teapot fallback scene
-        if self.shop.active:
-            # Draw teapot using its own perspective, then overlay shop UI
-            self.draw_teapot_fallback(WINDOW_WIDTH, WINDOW_HEIGHT)
-
-        # Render 2D UI
-        self.hud.render(WINDOW_WIDTH, WINDOW_HEIGHT, self.paused)
+        # Draw shop if active
         self.shop.render(WINDOW_WIDTH, WINDOW_HEIGHT)
 
         glutSwapBuffers()
 
-        # Change cursor based on pause state
-        if self.paused:
-            glutSetCursor(GLUT_CURSOR_INHERIT)
-        else:
-            glutSetCursor(GLUT_CURSOR_NONE)
+    def reshape(self, width, height):
+        if height == 0:
+            height = 1
+        glViewport(0, 0, width, height)
+        glMatrixMode(GL_PROJECTION)
+        glLoadIdentity()
+        gluPerspective(FOV_Y, width / height, 0.01, 10000.0)
+        glMatrixMode(GL_MODELVIEW)
 
 
+# * Main Function
 def main():
-    glutInit(sys.argv)
-    glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH)
+    glutInit()
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH)
     glutInitWindowSize(WINDOW_WIDTH, WINDOW_HEIGHT)
-    glutCreateWindow(b"3D Duck Hunt + Teapot Shop Fallback")
+    glutCreateWindow(b"Duck Hunter")
 
     game = Game()
 
     glutDisplayFunc(game.display)
-    glutIdleFunc(game.animate)
+    glutReshapeFunc(game.reshape)
     glutKeyboardFunc(game.keyboard_down)
     glutKeyboardUpFunc(game.keyboard_up)
     glutMouseFunc(game.mouse_listener)
     glutPassiveMotionFunc(game.passive_mouse)
+    glutIdleFunc(game.animate)
 
     glEnable(GL_DEPTH_TEST)
-    glDepthFunc(GL_LEQUAL)
     glShadeModel(GL_SMOOTH)
-    glClearColor(0.5, 0.7, 1.0, 1.0)  # light blue background
-    
-    print("Game Started!")
-    print("Controls:")
-    print(" - WASD: Move")
-    print(" - Mouse: Aim Horizontally and Vertically")
-    print(" - Scroll Wheel: Alternative Aim Vertically")
-    print(" - Left Click: Shoot")
-    print(" - R: Reload")
-    print(" - B: Open/Close Shop (shows rotating teapot fallback)")
-    print(" - P: Pause/Unpause")
-    print(" - Q: Quit")
-    print(" - ESC: Exit")
 
     glutMainLoop()
+
 
 if __name__ == "__main__":
     main()
