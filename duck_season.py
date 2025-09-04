@@ -25,7 +25,7 @@ PLAYER_SPEED = 2.5
 LOOK_X = 0
 LOOK_Y = 200
 LOOK_Z = 25
-# LOOK_SPEED_X = 10
+LOOK_SPEED_X = 10
 LOOK_SPEED_Z = 20
 LOOK_DELTA_ANGLE = 2.5
 
@@ -63,8 +63,9 @@ duck_dark_gray = (0.3, 0.3, 0.3)
 eye_black = (0.0, 0.0, 0.0)
 
 '''Change these to scale the duck and gun'''
-duck_scale = 1.0
+duck_scale = 2.0
 gun_scale = 1.0
+
 
 
 # Gun Color Variables
@@ -72,7 +73,25 @@ gun_brown = (0.35, 0.15, 0.0)
 gun_dark_brown = (0.2, 0.1, 0.0)
 gun_black = (0.1, 0.1, 0.1)
 
+# ---------- VIEW HELPERS ----------
+def get_view_angles():
+    """
+    Returns (yaw_deg, pitch_deg) for current camera look vector.
+    World up is +Z, forward is +Y.
+    yaw: rotation around Z so that +Y is 0°
+    pitch: rotation around X (nose up negative to match typical view)
+    """
+    vx = LOOK_X
+    vy = LOOK_Y + 1   # you add +1 in gluLookAt
+    vz = LOOK_Z - PLAYER_Z
 
+    xy_len = max(1e-6, (vx*vx + vy*vy)**0.5)
+
+    yaw_deg = degrees(atan2(vx, vy))         # 0° faces +Y, +90° faces +X
+    pitch_deg = -degrees(atan2(vz, xy_len))  # nose up => negative
+
+    return yaw_deg, pitch_deg
+# ----------------------------------------
 
 
 #TODO - GameObjects
@@ -251,8 +270,28 @@ class Duck:
 #! WOLVES
 
 #! Rifle
-def draw_shotgun_model():
+
+
+def draw_shotgun_model(x, y, z):
+    
     global gun_brown, gun_dark_brown, gun_black, gun_scale
+
+    yaw_deg, pitch_deg = get_view_angles()
+
+    glPushMatrix()
+    glTranslatef(x, y, z)
+
+    # Align to view: yaw around Z first (left-right), then pitch around X (up-down)
+    glRotatef(yaw_deg, 0, 0, 1)  # Rotate left/right (yaw)
+    
+    # Reverse the pitch rotation for expected up/down control
+    glRotatef(-pitch_deg, 1, 0, 0)  # Inverted pitch rotation (up/down)
+
+    # Hand/hip offset in *view space* (+X right, +Y forward, +Z up)
+    glTranslatef(0.6, 1.2, -0.4)
+
+    glRotate(90, 1, 0, 0)
+
     # Stock (main wooden part)
     glPushMatrix()
     glColor3f(*gun_brown)
@@ -318,6 +357,7 @@ def draw_shotgun_model():
     glutSolidCube(1.0)
     glPopMatrix()
 
+    glPopMatrix()
 
 
 #! Bullet
@@ -774,6 +814,8 @@ def showScreen():
     draw_surface()
     draw_tree(0, 0)
 
+    draw_shotgun_model(PLAYER_X + 1, PLAYER_Y - 0.5, PLAYER_Z - 1)
+
     if len(DUCKS) < DUCK_COUNT: #? spawns DUCK_COUNT amount of ducks
         DUCKS.append(Duck(  random.uniform(-500, 500),
                             random.uniform(-500, 500), 
@@ -816,6 +858,7 @@ def idle():
         aim_y = LOOK_X * sin(radians(LOOK_DELTA_ANGLE)) + LOOK_Y * cos(radians(LOOK_DELTA_ANGLE))
         LOOK_X, LOOK_Y = aim_x, aim_y
         PLAYER_R += LOOK_DELTA_ANGLE    #? Update player rotation
+        
         print(PLAYER_R)
         print("Aim Left")
 
