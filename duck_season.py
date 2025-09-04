@@ -51,19 +51,15 @@ MOVE_RIGHT = False
 AIM_LEFT = False
 AIM_RIGHT = False
 
-DUCK_COUNT = 1
+DUCK_COUNT = 20
 DUCK_FLYING_Z = 500
 DUCK_WING_SPEED = 10
 DUCK_SPEED = 5
-DUCK_FALLING_SPEED = 5
+DUCK_FALLING_SPEED = 2.5
 DUCKS = []
 
 BULLETS = []
-<<<<<<< HEAD
-BULLET_SPEED = 50
-=======
 BULLET_SPEED = 100
->>>>>>> 4381b8b381c13e3aa656c276b24d33c8f7b86655
 
 # Color Variables
 duck_light_gray = (0.7, 0.7, 0.7)
@@ -81,6 +77,7 @@ class Duck:
         self.wing_flapping_angle = 0
         self.state = 'flying'
         self.wing_angle = 0.0
+        self.dim = 6
 
 
     def draw_duck(self):
@@ -88,17 +85,23 @@ class Duck:
 
         glPushMatrix()
         glTranslate(*self.position)
-        dim = 10
-        glScalef(dim, dim, dim)
+        glScalef(self.dim, self.dim, self.dim)
         glRotate(90, 1, 0, 0)
         glRotate(self.rotation, 0, 1, 0)
 
+        if self.state == 'falling':
+            self.dim = 4
+            glRotatef(90, 1, 0, 0)
+            if self.position[2] > 0:
+                self.position[2] -= DUCK_FALLING_SPEED
+            else:
+                self.position[2] = 1
+                self.state='dead'
+
         if self.state == 'dead':
+            self.dim = 2
             glRotatef(180, 1, 0, 0)
         
-        if self.state == 'falling':
-            glRotatef(90, 1, 0, 0)
-
         # Body
         glPushMatrix()
         glColor3f(*duck_light_gray)
@@ -639,11 +642,11 @@ def idle(_=None):
                     BULLETS.remove(bullet)
                     print('hit')
 
-        elif duck.state == 'falling':   #! for falling duck -> may not work
-            _z = duck.position[2] - DUCK_FALLING_SPEED  
-            if _z <= 0:
-                duck.position[2] = _z
-                duck.state = 'dead'
+        # elif duck.state == 'falling':   #! for falling duck -> may not work
+        #     _z = duck.position[2] - DUCK_FALLING_SPEED  
+        #     if _z <= 0:
+        #         duck.position[2] = _z
+        #         duck.state = 'dead'
             
     # ---------------------------------- #
 
