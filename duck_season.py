@@ -32,7 +32,7 @@ LOOK_DELTA_ANGLE = 2.5
 GROUND_X = 1000    #? half of ground length
 GROUND_Y = 1000     #? half of ground width
 
-SKYBOX_HEIGHT = 1000
+SKYBOX_HEIGHT = 1500
 
 TREE_TRUNK_RADIUS = 10
 TREE_TRUNK_HEIGHT = 50
@@ -376,13 +376,13 @@ def aim_right():
 def shoot():
     global BULLETS
     bullet_angle = PLAYER_R
-    shoot_x = - cos(radians(bullet_angle))
-    shoot_y = - sin(radians(bullet_angle))
-    shoot_z = cos(atan2((LOOK_Z-I_LOOK_Z),LOOK_Y))
+    dx = - cos(radians(bullet_angle))
+    dy = - sin(radians(bullet_angle))
+    dz = cos(atan2((LOOK_Z-I_LOOK_Z),LOOK_Y))
 
     _x, _y, _z = PLAYER_X+5, PLAYER_Y, PLAYER_Z
 
-    BULLETS.append(Bullet((_x,_y,_z),(shoot_x,shoot_y,shoot_z)))
+    BULLETS.append(Bullet((_x,_y,_z),(dx,dy,dz)))
     pass
 
 #! Movement keys (WASD) + Shop menu (numbers)
