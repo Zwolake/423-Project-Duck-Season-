@@ -1,5 +1,4 @@
 # * libraries
-
 from OpenGL.GL import *
 from OpenGL.GLUT import *
 from OpenGL.GLU import *
@@ -9,7 +8,6 @@ import time
 import sys
 
 # * Game Configuration & Constants
-
 # Window
 WINDOW_WIDTH = 1280
 WINDOW_HEIGHT = 720
@@ -46,8 +44,15 @@ DUCK_HITBOX_RADIUS = 135.0  # Decreased hitbox
 BULLET_SPEED = 10.0
 BULLET_LIFESPAN = 5.0 # in seconds
 
-# --- Color Variables ---
+# Dog
+DOG_COST = 100
+DOG_DEPLOY_DURATION = 30.0           # seconds total on field
+DOG_HUNT_MIN = 5.0                   # will hunt for 5–10 seconds (random)
+DOG_HUNT_MAX = 10.0
+DOG_SPEED = 3.0
+DOG_CATCH_RADIUS = 60.0
 
+# --- Color Variables ---
 # Duck
 duck_color_schemes = [
     {"light": (0.7, 0.7, 0.7), "med": (0.6, 0.6, 0.6), "medium": (0.5, 0.5, 0.5), "dark": (0.3, 0.3, 0.3)},
@@ -122,73 +127,73 @@ class Duck:
         else:
             camo_scheme = self.color_scheme
 
-        # Body - increased scales by 6x (3x * 2x)
+        # Body - decreased scales a bit more
         glPushMatrix()
         glColor3f(*camo_scheme["light"])
-        glScalef(9.0, 6.0, 15.0)  # 4.5 * 2, 3.0 * 2, 7.5 * 2
+        glScalef(6.0, 4.0, 10.0)  # smaller than before
         glutSolidCube(1.5)
         glPopMatrix()
 
-        # Neck - increased scales by 6x
+        # Neck - decreased scales a bit more
         glPushMatrix()
         glColor3f(*camo_scheme["dark"])
-        glScalef(4.2, 3.0, 4.2)  # 2.1 * 2, 1.5 * 2, 2.1 * 2
+        glScalef(3.0, 2.0, 3.0)  # smaller than before
         glTranslatef(0, 1.8, 9.0)  # 0.9 * 2, 4.5 * 2
         glutSolidCube(1.0)
         glPopMatrix()
 
-        # Head - increased scales by 6x
+        # Head - decreased scales a bit more
         glPushMatrix()
         glColor3f(*camo_scheme["med"])
-        glScalef(6.6, 6.0, 6.0)  # 3.3 * 2, 3.0 * 2, 3.0 * 2
+        glScalef(4.5, 4.0, 4.0)  # smaller than before
         glTranslatef(0, 1.2, 8.4)  # 0.6 * 2, 4.2 * 2
         glutSolidCube(1.0)
         glPopMatrix()
 
-        # Beak - increased scales by 6x
+        # Beak - decreased scales a bit more
         glPushMatrix()
         glColor3f(*camo_scheme["dark"])
-        glScalef(3.6, 1.2, 3.0)  # 1.8 * 2, 0.6 * 2, 1.5 * 2
+        glScalef(2.5, 0.8, 2.0)  # smaller than before
         glTranslatef(0, 1.8, 20.1)  # 0.9 * 2, 10.05 * 2
         glutSolidCube(1)
         glPopMatrix()
 
-        # Eyes - increased scales by 6x
+        # Eyes - decreased scales a bit more
         for i in [-1, 1]:
             glPushMatrix()
             glColor3f(*eye_black)
-            glScalef(1.2, 1.2, 1.2)  # 0.6 * 2, 0.6 * 2, 0.6 * 2
-            glTranslatef(i * 7.5, 10.8, 45.0)  # 3.75 * 2, 5.4 * 2, 22.5 * 2
+            glScalef(0.8, 0.8, 0.8)  # smaller than before
+            glTranslatef(i * 5.5, 7.5, 32.0)  # closer and smaller
             glutSolidCube(1.0)
             glPopMatrix()
 
-        # Wings - increased scales by 6x
+        # Wings - decreased scales a bit more
         wing_delta = 25 * sin(radians(self.wing_angle))
         for i in [-1, 1]:
             glPushMatrix()
             glColor3f(*camo_scheme["medium"])
-            glTranslatef(i * 4.8, 1.2, 0.0)  # 2.4 * 2, 0.6 * 2, 0.0
+            glTranslatef(i * 3.5, 0.8, 0.0)  # smaller and closer
             if self.state == 'flying':
                 glRotatef(i * (-wing_delta + 30), 0, 0, 1)
-            glScalef(11.4, 1.2, 6.0)  # 5.7 * 2, 0.6 * 2, 3.0 * 2
+            glScalef(8.0, 0.8, 4.0)  # smaller than before
             glutSolidCube(1.5)
             glPopMatrix()
 
-        # Legs - increased scales by 6x
+        # Legs - decreased scales a bit more
         for i in [-1, 1]:
             glPushMatrix()
             glColor3f(*camo_scheme["dark"])
-            glScalef(1.8, 6.0, 1.8)  # 0.9 * 2, 3.0 * 2, 0.9 * 2
-            glTranslatef(i * 6.0, -3.6, -3.0)  # 3.0 * 2, -1.8 * 2, -1.5 * 2
+            glScalef(1.2, 4.0, 1.2)  # smaller than before
+            glTranslatef(i * 4.5, -2.5, -2.0)  # closer and smaller
             glutSolidCube(1.0)
             glPopMatrix()
 
-        # Tail - increased scales by 6x
+        # Tail - decreased scales a bit more
         glPushMatrix()
         glColor3f(*camo_scheme["dark"])
-        glTranslatef(0, -0.6, -6.0)  # -0.3 * 2, -3.0 * 2
+        glTranslatef(0, -0.4, -4.5)  # closer and smaller
         glRotatef(20, 1, 0, 0)
-        glScalef(10.8, 1.8, 14.4)  # 5.4 * 2, 0.9 * 2, 7.2 * 2
+        glScalef(7.5, 1.2, 10.0)  # smaller than before
         glutSolidCube(1.0)
         glPopMatrix()
 
@@ -255,73 +260,70 @@ class GroundDuck(Duck):
         else:
             camo_scheme = self.color_scheme
 
-        # Body - increased scales by 6x (3x * 2x)
+        # Body - decreased scales a bit more
         glPushMatrix()
         glColor3f(*camo_scheme["light"])
-        glScalef(9.0, 6.0, 15.0)  # 4.5 * 2, 3.0 * 2, 7.5 * 2
+        glScalef(6.0, 4.0, 10.0)  # smaller than before
         glutSolidCube(1.5)
         glPopMatrix()
 
-        # Neck - increased scales by 6x
+        # Neck - decreased scales a bit more
         glPushMatrix()
         glColor3f(*camo_scheme["dark"])
-        glScalef(4.2, 3.0, 4.2)  # 2.1 * 2, 1.5 * 2, 2.1 * 2
+        glScalef(3.0, 2.0, 3.0)  # smaller than before
         glTranslatef(0, 1.8, 9.0)  # 0.9 * 2, 4.5 * 2
         glutSolidCube(1.0)
         glPopMatrix()
 
-        # Head - increased scales by 6x
+        # Head - decreased scales a bit more
         glPushMatrix()
         glColor3f(*camo_scheme["med"])
-        glScalef(6.6, 6.0, 6.0)  # 3.3 * 2, 3.0 * 2, 3.0 * 2
+        glScalef(4.5, 4.0, 4.0)  # smaller than before
         glTranslatef(0, 1.2, 8.4)  # 0.6 * 2, 4.2 * 2
         glutSolidCube(1.0)
         glPopMatrix()
 
-        # Beak - increased scales by 6x
+        # Beak - decreased scales a bit more
         glPushMatrix()
         glColor3f(*camo_scheme["dark"])
-        glScalef(3.6, 1.2, 3.0)  # 1.8 * 2, 0.6 * 2, 1.5 * 2
+        glScalef(2.5, 0.8, 2.0)  # smaller than before
         glTranslatef(0, 1.8, 20.1)  # 0.9 * 2, 10.05 * 2
         glutSolidCube(1)
         glPopMatrix()
 
-        # Eyes - increased scales by 6x
+        # Eyes - decreased scales a bit more
         for i in [-1, 1]:
             glPushMatrix()
             glColor3f(*eye_black)
-            glScalef(1.2, 1.2, 1.2)  # 0.6 * 2, 0.6 * 2, 0.6 * 2
-            glTranslatef(i * 7.5, 10.8, 45.0)  # 3.75 * 2, 5.4 * 2, 22.5 * 2
+            glScalef(0.8, 0.8, 0.8)  # smaller than before
+            glTranslatef(i * 5.5, 7.5, 32.0)  # closer and smaller
             glutSolidCube(1.0)
             glPopMatrix()
 
-        # Wings - increased scales by 6x
-        wing_delta = 25 * sin(radians(self.wing_angle))
+        # Wings - decreased scales a bit more
         for i in [-1, 1]:
             glPushMatrix()
             glColor3f(*camo_scheme["medium"])
-            glTranslatef(i * 4.8, 1.2, 0.0)  # 2.4 * 2, 0.6 * 2, 0.0
-            if self.state == 'flying':
-                glRotatef(i * (-wing_delta + 30), 0, 0, 1)
-            glScalef(11.4, 1.2, 6.0)  # 5.7 * 2, 0.6 * 2, 3.0 * 2
+            glTranslatef(i * 3.5, 0.8, 0.0)  # smaller and closer
+            glScalef(8.0, 0.8, 4.0)  # smaller than before
             glutSolidCube(1.5)
             glPopMatrix()
 
-        # Legs - increased scales by 6x
+        # Legs - decreased scales a bit more
         for i in [-1, 1]:
             glPushMatrix()
             glColor3f(*camo_scheme["dark"])
-            glScalef(1.8, 6.0, 1.8)  # 0.9 * 2, 3.0 * 2, 0.9 * 2
-            glTranslatef(i * 6.0, -3.6, -3.0)  # 3.0 * 2, -1.8 * 2, -1.5 * 2
+            glScalef(1.2, 4.0, 1.2)  # smaller than before
+            glTranslatef(i * 4.5, -2.5, -2.0)  # closer and smaller
             glutSolidCube(1.0)
             glPopMatrix()
 
-        # Tail - increased scales by 6x
+        # Tail - decreased scales a bit more
         glPushMatrix()
         glColor3f(*camo_scheme["dark"])
-        glTranslatef(0, -0.6, -6.0)  # -0.3 * 2, -3.0 * 2
+        glTranslatef(0, -0.4, -4.5)  # closer and smaller
         glRotatef(20, 1, 0, 0)
-        glScalef(10.8, 1.8, 14.4)  # 5.4 * 2, 0.9 * 2, 7.2 * 2
+        glScalef(7.5, 1.2, 10.0)  # smaller than before
         glutSolidCube(1.0)
         glPopMatrix()
 
@@ -351,6 +353,169 @@ class Bullet:
         glColor3f(1.0, 1.0, 0.0) # Yellow
         glutSolidSphere(2, 8, 8)
         glPopMatrix()
+
+
+class Dog:
+    """
+    Simple cube-based OpenGL dog companion that hunts ground ducks.
+    - Purchase in shop for 100 points (key D).
+    - Stays deployed for 30s, but will only actively hunt for 5–10s from deploy time.
+    - +10 points per duck caught by the dog.
+    - If all target ground ducks are hunted before timer ends, +50 bonus.
+    - While dog is deployed, flying ducks move faster (harder to shoot).
+    """
+    def __init__(self, game):
+        self.game = game
+        # Spawn next to player
+        px, py, pz = self.game.player_pos
+        self.position = [px + 20, py + 20, 0]
+        self.dir = [1.0, 0.0]
+        self.speed = DOG_SPEED
+        self.deployed_at = time.time()
+        self.expires_at = self.deployed_at + DOG_DEPLOY_DURATION
+        self.hunt_duration = DOG_DEPLOY_DURATION
+        self.hunt_ends_at = self.deployed_at + self.hunt_duration
+        self.caught = 0
+        self.target = None
+        # Snapshot of ground ducks at deploy-time for the "all hunted" bonus.
+        self.initial_targets = set(id(d) for d in self.get_alive_ground_ducks())
+        self.bonus_awarded = False
+
+    def active(self):
+        return time.time() < self.expires_at
+
+    def hunting_now(self):
+        # Only hunts during first 5–10 seconds of deployment
+        return time.time() < self.hunt_ends_at
+
+    def get_alive_ground_ducks(self):
+        return [d for d in self.game.active_ducks if isinstance(d, GroundDuck) and d.state == 'walking']
+
+    def pick_target(self):
+        ducks = self.get_alive_ground_ducks()
+        if not ducks:
+            self.target = None
+            return
+        # nearest ground duck
+        px, py = self.position[0], self.position[1]
+        self.target = min(ducks, key=lambda d: (d.position[0]-px)**2 + (d.position[1]-py)**2)
+
+    def update(self):
+        # If expired, do nothing
+        if not self.active():
+            return
+
+        # Only move/hunt during the hunting window
+        if self.hunting_now():
+            # Acquire or validate target
+            if self.target is None or self.target.state != 'walking':
+                self.pick_target()
+
+            if self.target:
+                tx, ty, tz = self.target.position
+                # move towards target on ground
+                dx, dy = (tx - self.position[0]), (ty - self.position[1])
+                dist = sqrt(dx*dx + dy*dy) + 1e-6
+                vx, vy = dx/dist, dy/dist
+                self.position[0] += vx * self.speed
+                self.position[1] += vy * self.speed
+                self.dir = [vx, vy]
+
+                # Catch if close enough
+                if dist < DOG_CATCH_RADIUS:
+                    if self.target.drop_duck():
+                        # Score + currency on dog catch
+                        self.game.hud.add_score(10)
+                        self.game.shop.currency += 10
+                        self.game.total_points += 10
+                        self.caught += 1
+                        self.game.hud.messages.append(("Dog caught a duck! +10", time.time()))
+                        self.target = None
+            else:
+                # wander if no targets
+                angle = random.uniform(0, 2*pi)
+                self.dir = [cos(angle), sin(angle)]
+                self.position[0] += self.dir[0] * (self.speed * 0.5)
+                self.position[1] += self.dir[1] * (self.speed * 0.5)
+
+        # Clamp to world bounds
+        self.position[0] = max(-GROUND_HALF_LENGTH, min(GROUND_HALF_LENGTH, self.position[0]))
+        self.position[1] = max(-GROUND_HALF_LENGTH, min(GROUND_HALF_LENGTH, self.position[1]))
+
+        # Check "all hunted" bonus once
+        if not self.bonus_awarded and self.active():
+            # From the initial snapshot, are any still alive?
+            alive_ids = set(id(d) for d in self.get_alive_ground_ducks())
+            remaining = self.initial_targets.intersection(alive_ids)
+            if len(self.initial_targets) > 0 and len(remaining) == 0:
+                # All ground ducks from deployment snapshot are hunted
+                self.game.hud.add_score(50)
+                self.game.shop.currency += 50
+                self.game.total_points += 50
+                self.game.hud.messages.append(("Dog cleared the ground! +50", time.time()))
+                self.bonus_awarded = True
+
+    def draw(self):
+        if not self.active():
+            return
+
+        glPushMatrix()
+        glTranslatef(self.position[0], self.position[1], 0.0)
+
+        # Face movement direction
+        angle = degrees(atan2(self.dir[1], self.dir[0]))
+        glRotatef(angle, 0, 0, 1)
+
+        # Simple cube-based model
+        # Body
+        glPushMatrix()
+        glColor3f(0.6, 0.5, 0.4)
+        glScalef(30.0, 18.0, 12.0)
+        glutSolidCube(1.0)
+        glPopMatrix()
+
+        # Head
+        glPushMatrix()
+        glTranslatef(18.0, 0.0, 6.0)
+        glColor3f(0.55, 0.45, 0.35)
+        glScalef(10.0, 10.0, 10.0)
+        glutSolidCube(1.0)
+        glPopMatrix()
+
+        # Ears
+        for ey in [-1, 1]:
+            glPushMatrix()
+            glTranslatef(23.0, ey*4.0, 12.0)
+            glColor3f(0.4, 0.3, 0.2)
+            glScalef(3.0, 3.0, 6.0)
+            glutSolidCube(1.0)
+            glPopMatrix()
+
+        # Legs
+        for lx, ly in [(-10, -7), (-10, 7), (10, -7), (10, 7)]:
+            glPushMatrix()
+            glTranslatef(lx, ly, -6.0)
+            glColor3f(0.35, 0.25, 0.15)
+            glScalef(4.0, 4.0, 10.0)
+            glutSolidCube(1.0)
+            glPopMatrix()
+
+        # Tail
+        glPushMatrix()
+        glTranslatef(-18.0, 0.0, 6.0)
+        glRotatef(30, 0, 1, 0)
+        glColor3f(0.45, 0.35, 0.25)
+        glScalef(8.0, 2.5, 2.5)
+        glutSolidCube(1.0)
+        glPopMatrix()
+
+        glPopMatrix()
+
+    def time_left(self):
+        return max(0.0, self.expires_at - time.time())
+
+    def hunt_time_left(self):
+        return max(0.0, self.hunt_ends_at - time.time())
 
 
 class HUD:
@@ -393,7 +558,7 @@ class HUD:
         self.ammo = self.magazine_size
         self.messages.append(("Reloaded!", time.time()))
 
-    def render(self, window_w, window_h, paused, night_mode=False, auto_fire_active=False, cooldown_remaining=0):
+    def render(self, window_w, window_h, paused, night_mode=False, auto_fire_active=False, cooldown_remaining=0, dog=None, shop=None, total_points=0):
         glMatrixMode(GL_PROJECTION)
         glPushMatrix()
         glLoadIdentity()
@@ -412,16 +577,23 @@ class HUD:
         glColor3f(1, 1, 1)
         self.draw_text(20, window_h - 30, f"Score: {self.score}")
         self.draw_text(20, window_h - 55, f"Ammo: {self.ammo}/{self.magazine_size}")
+        self.draw_text(20, window_h - 80, f"Total Points: {total_points}")
         if night_mode:
-            self.draw_text(20, window_h - 80, "Night Mode")
+            self.draw_text(20, window_h - 105, "Night Mode")
         if self.night_vision:
-            self.draw_text(20, window_h - 105, "Night Vision Active")
+            self.draw_text(20, window_h - 130, "Night Vision Active")
         if auto_fire_active:
             glColor3f(0, 1, 0)
-            self.draw_text(20, window_h - 130, "Auto Fire Active")
+            self.draw_text(20, window_h - 155, "Auto Fire Active")
         elif cooldown_remaining > 0:
             glColor3f(1, 0, 0)
-            self.draw_text(20, window_h - 130, f"Auto Fire Cooldown: {int(cooldown_remaining)}s")
+            self.draw_text(20, window_h - 155, f"Auto Fire Cooldown: {int(cooldown_remaining)}s")
+
+        # Dog status
+        if dog and dog.active():
+            glColor3f(0.8, 0.9, 1.0)
+            self.draw_text(20, window_h - 180, f"Dog: {int(dog.time_left())}s left, hunts {int(dog.hunt_time_left())}s")
+            self.draw_text(20, window_h - 200, f"Ducks caught by dog: {dog.caught}")
 
         # Draw Paused Message
         if paused:
@@ -469,11 +641,13 @@ class Shop:
             {"name": "Bigger Magazine", "key": "G", "description": "+5 bullets per reload", "cost": 100},
             {"name": "Night Vision", "key": "N", "description": "See ducks in night mode", "cost": 50},
             {"name": "Auto Fire Mode", "key": "A", "description": "Auto-lock on ducks, increase fire rate for 10s", "cost": 200},
+            {"name": "Dog Companion", "key": "D", "description": "Deploy hunting dog for 30s", "cost": DOG_COST},
         ]
         self.last_message = ""
         self.last_message_time = 0
         self.active_effects = {}
         self.cooldown_end_time = 0
+        self.dog_cooldown_end_time = 0
 
     def toggle(self):
         self.active = not self.active
@@ -491,10 +665,18 @@ class Shop:
                     self.last_message = "Auto Fire on cooldown!"
                     self.last_message_time = time.time()
                     return True
+                if item["name"] == "Dog Companion" and self.game.dog and self.game.dog.active():
+                    self.last_message = "Dog already active!"
+                    self.last_message_time = time.time()
+                    return True
+                if item["name"] == "Dog Companion" and time.time() < self.dog_cooldown_end_time:
+                    self.last_message = "Dog on cooldown!"
+                    self.last_message_time = time.time()
+                    return True
                 if self.currency >= item["cost"]:
                     self.currency -= item["cost"]
                     self.apply_effect(item)
-                    self.last_message = f"Purchased {item['name']}!"
+                    self.last_message = f"Purchased {item['name']}! Points left: {self.currency}"
                 else:
                     self.last_message = "Not enough points!"
                 self.last_message_time = time.time()
@@ -515,6 +697,10 @@ class Shop:
             self.game.auto_fire_end_time = time.time() + 10
             self.game.last_auto_shot = time.time()
             self.hud.messages.append(("Auto Fire Activated for 10s", time.time()))
+        elif name == "Dog Companion":
+            self.game.deploy_dog()
+            self.dog_cooldown_end_time = time.time() + 60
+            self.hud.messages.append(("Dog Deployed!", time.time()))
 
     def draw_text(self, x, y, text, font=GLUT_BITMAP_HELVETICA_18):
         glRasterPos2f(x, y)
@@ -553,6 +739,8 @@ class Shop:
         for item in self.items:
             color = (0.5, 1, 0.5) if self.currency >= item["cost"] else (1, 0.3, 0.3)
             if item["name"] == "Auto Fire Mode" and time.time() < self.cooldown_end_time:
+                color = (1, 0.3, 0.3)
+            if item["name"] == "Dog Companion" and time.time() < self.dog_cooldown_end_time:
                 color = (1, 0.3, 0.3)
             glColor3f(*color)
             self.draw_text(cx - 250, cy + 60 - y_offset,
@@ -595,7 +783,7 @@ class Game:
         self.paused = False
 
         # Difficulty
-        self.speed_multiplier = 1.0
+        self.base_speed_multiplier = 1.0
         self.night_mode = False
 
         # Auto Fire
@@ -607,8 +795,14 @@ class Game:
         self.last_spawn_time = time.time()
         self.spawn_interval = random.uniform(2.0, 5.0)
 
+        # Dog
+        self.dog = None
+
         # Fallback teapot rotation (for shop overlay)
         self.teapot_angle = 0.0
+
+        # Total points counter
+        self.total_points = 0
 
         self.initialize_game()
 
@@ -789,6 +983,9 @@ class Game:
                 norm_direction = [d / mag for d in direction]
                 self.bullets.append(Bullet(cam_pos, norm_direction))
 
+    def deploy_dog(self):
+        self.dog = Dog(self)
+
     def animate(self):
         if self.paused:
             glutPostRedisplay()
@@ -796,20 +993,35 @@ class Game:
 
         self.update_cursor_visibility()
 
-        # Update difficulty based on score
+        # Base difficulty based on score and night mode
         if self.night_mode:
-            self.speed_multiplier = 2.0
+            self.base_speed_multiplier = 2.0
         elif self.hud.score >= 50:
-            self.speed_multiplier = 1.5
+            self.base_speed_multiplier = 1.5
         else:
-            self.speed_multiplier = 1.0
+            self.base_speed_multiplier = 1.0
 
         # Update player & world only when shop is closed
         self.update_player()
 
-        # Update ducks
+        # Update Dog
+        if self.dog:
+            # If dog expired, clear it
+            if not self.dog.active():
+                self.dog = None
+            else:
+                self.dog.update()
+
+        # Determine flying duck speed (increased while dog is deployed)
+        dog_speed_boost = 1.8 if (self.dog and self.dog.active()) else 1.0
+        flying_speed_multiplier = self.base_speed_multiplier * dog_speed_boost
+
+        # Update ducks (flying vs ground multiplier)
         for duck in self.active_ducks:
-            duck.update(self.speed_multiplier, self)
+            if isinstance(duck, GroundDuck):
+                duck.update(1.0, self)
+            else:
+                duck.update(flying_speed_multiplier, self)
 
         # Remove dead ducks
         self.active_ducks = [d for d in self.active_ducks if d.state != 'dead']
@@ -869,7 +1081,7 @@ class Game:
                         if not self.hud.auto_fire_active:
                             self.hud.ammo -= 1
 
-        # Collision detection
+        # Collision detection (player bullets vs ducks)
         bullets_to_remove = []
         for i, bullet in enumerate(self.bullets):
             for duck in self.active_ducks:
@@ -881,10 +1093,14 @@ class Game:
                             points = 20 if self.night_mode else 10
                             self.hud.add_score(points)
                             self.shop.currency += points
+                            self.total_points += points
                             bullets_to_remove.append(i)
                             break
             if i in bullets_to_remove:
                 continue
+
+        # Remove bullets that collided
+        self.bullets = [b for idx, b in enumerate(self.bullets) if idx not in bullets_to_remove]
 
         glutPostRedisplay()
 
@@ -964,6 +1180,10 @@ class Game:
         for bullet in self.bullets:
             bullet.draw()
 
+        # Draw dog
+        if self.dog and self.dog.active():
+            self.dog.draw()
+
     def display(self):
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         glLoadIdentity()
@@ -985,7 +1205,7 @@ class Game:
 
         # Draw HUD
         cooldown_remaining = max(0, self.shop.cooldown_end_time - time.time())
-        self.hud.render(WINDOW_WIDTH, WINDOW_HEIGHT, self.paused, self.night_mode, self.auto_fire_active, cooldown_remaining)
+        self.hud.render(WINDOW_WIDTH, WINDOW_HEIGHT, self.paused, self.night_mode, self.auto_fire_active, cooldown_remaining, dog=self.dog, total_points=self.total_points)
 
         # Draw shop if active
         self.shop.render(WINDOW_WIDTH, WINDOW_HEIGHT)
