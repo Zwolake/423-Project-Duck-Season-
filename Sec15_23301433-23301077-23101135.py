@@ -252,6 +252,94 @@ class Duck: #? duck
 #! Wolves(?)
 
 #TODO Rifle
+def draw_shotgun_model(x, y, z):
+    
+    global gun_brown, gun_dark_brown, gun_black, gun_scale
+
+    yaw_deg, pitch_deg = get_view_angles()
+
+    glPushMatrix()
+    glTranslatef(x, y, z)
+
+    # Align to view: yaw around Z first (left-right), then pitch around X (up-down)
+    glRotatef(yaw_deg, 0, 0, 1)  # Rotate left/right (yaw)
+    
+    # Reverse the pitch rotation for expected up/down control
+    glRotatef(-pitch_deg, 1, 0, 0)  # Inverted pitch rotation (up/down)
+
+    # Hand/hip offset in *view space* (+X right, +Y forward, +Z up)
+    glTranslatef(0.6, 1.2, -0.4)
+
+    glRotate(90, 1, 0, 0)
+
+    # Stock (main wooden part)
+    glPushMatrix()
+    glColor3f(*gun_brown)
+    glTranslatef(0.3, -0.3, 1.9)
+    glScalef(gun_scale * 0.4, gun_scale * 0.8, gun_scale * 2.0)
+    glRotate(20, 1, 0, 0)
+    glutSolidCube(1.0)
+    glPopMatrix()
+    
+    # Body (receiver)
+    glPushMatrix()
+    glColor3f(*gun_black)
+    glTranslatef(0.3, -0.2, 0.7)
+    glScalef(gun_scale * 0.5, gun_scale * 0.8, gun_scale * 1.3)
+    glutSolidCube(1.0)
+    glPopMatrix()
+    
+    # Handle (trigger handle)
+    glPushMatrix()
+    glColor3f(*gun_black)
+    glTranslatef(0.25, -0.48, 0.0)
+    glScalef(gun_scale * 0.5, gun_scale * 1.2, gun_scale * 0.5)
+    glutSolidCube(1.0)
+    glPopMatrix()
+
+    # Trigger Guard (a thin part under the body)
+    glPushMatrix()
+    glColor3f(*gun_black)
+    glTranslatef(0.3, -0.5, -0.5)
+    glScalef(gun_scale * 0.4, gun_scale * 0.4, gun_scale * 0.2)
+    glutSolidCube(1.0)
+    glPopMatrix()
+    
+    # Pump (front sliding part)
+    glPushMatrix()
+    glColor3f(*gun_dark_brown)
+    glTranslatef(0.25, -0.15, -1.0)
+    glScalef(gun_scale * 1.0, gun_scale * 0.5, gun_scale * 1.8)
+    glutSolidCube(1.0)
+    glPopMatrix()
+    
+    # Magazine Tube (under the barrel)
+    glPushMatrix()
+    glColor3f(*gun_black)
+    glTranslatef(0.25, -0.3, -1.5)
+    glScalef(gun_scale * 0.4, gun_scale * 0.4, gun_scale * 3.0)
+    glutSolidCube(1.0)
+    glPopMatrix()
+    
+    # Barrel (the longest part)
+    glPushMatrix()
+    glColor3f(*gun_black)
+    glTranslatef(0.25, 0.1, -2.5)
+    glScalef(gun_scale * 0.4, gun_scale * 0.4, gun_scale * 4.0)
+    glutSolidCube(1.0)
+    glPopMatrix()
+    
+    # Sights (small parts on top of the barrel)
+    glPushMatrix()
+    glColor3f(*gun_black)
+    glTranslatef(0.25, 0.3, -4.3)
+    glScalef(gun_scale * 0.1, gun_scale * 0.2, gun_scale * 0.2)
+    glutSolidCube(1.0)
+    glPopMatrix()
+
+    glPopMatrix()
+
+
 
 #* ----- Bullet ----- #
 class Bullet:   #? bullet 
@@ -556,6 +644,9 @@ def setupCamera():
               PLAYER_X + LOOK_X , PLAYER_Y + LOOK_Y + 1, LOOK_Z,  # Look at point
               0, 0, 1)  # Up vector
     
+
+
+
 #* display function -> draw
 #render shop 
 def display():
@@ -607,6 +698,8 @@ def showScreen():
         duck.draw_duck()
         state = "flying"
         #draw_duck(x, y, z, state)
+
+    draw_shotgun_model(PLAYER_X, PLAYER_Y, PLAYER_Z - 1)
 
     for bullet in BULLETS:
         bullet.draw()
@@ -746,7 +839,7 @@ def idle():
 class HUD:
     def __init__(self):
         self.score, self.c, self.magazine_size = 0, AMMO_COUNT, 8
-        self.currency = 0
+        self.currency = 1000
         self.health, self.crosshair_size = 100, 10
         self.messages, self.last_shot_time = [], 0.0
         self.night_vision, self.auto_fire_active = False, False
@@ -804,7 +897,7 @@ class Shop:
     def __init__(self, hud):
         self.active = False
         self.hud = hud
-        self.currency = 0
+        self.currency = 200
         self.items = [
             {"id": 1, "name": "Bigger Magazine", "key": "G", "cost": 100},
             {"id": 2, "name": "Refill Magazine", "key": "A", "cost": 50}
@@ -820,8 +913,8 @@ class Shop:
         key = key.decode("utf-8").upper()
         for item in self.items:
             if item["key"] == key or str(item["id"]) == key:
-                if self.currency >= item["cost"]:
-                    self.currency -= item["cost"]
+                if hud.currency >= item["cost"]:
+                    hud.currency -= item["cost"]
                     self.last_message = f"Purchased {item['name']}!"
                     return item["id"]
                 else:
