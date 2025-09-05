@@ -150,7 +150,6 @@
 
 
 # * libraries
-
 from OpenGL.GL import *
 from OpenGL.GLUT import *
 from OpenGL.GLU import *
@@ -1113,7 +1112,7 @@ class Game:
 
         # Base difficulty based on score and night mode
         if self.night_mode:
-            self.base_speed_multiplier = 2.0
+            self.base_speed_multiplier = 2.5
         elif self.hud.score >= 50:
             self.base_speed_multiplier = 1.5
         else:
