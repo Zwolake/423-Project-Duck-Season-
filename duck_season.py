@@ -433,6 +433,7 @@ def shoot():
         dz = LOOK_Z - _z
 
         BULLETS.append(Bullet((_x,_y,_z),(dx,dy,dz)))
+        hud.shoot()
         AMMO_COUNT -= 1
 
 #* ----- Keyboard ----- #
@@ -610,7 +611,7 @@ def showScreen():
 
     # draw Shop overlay (if active)
     shop.render(window_width, window_height)
-    
+
     #TODO UI elements
 
     #* ---- Crosshair ---- #
