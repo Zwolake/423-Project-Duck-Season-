@@ -1,4 +1,5 @@
-#Game Description : 
+#GAME TITLE : DUCK SEASON
+#Game Description : A 3D shooting game where the player shoots ducks assisted by built-in game features and difficulties
 # Features
 
 # Core Libraries and Dependencies
