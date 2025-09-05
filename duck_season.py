@@ -694,7 +694,7 @@ def showScreen():
 
     #TODO UI elements
     
-    draw_shotgun_model(PLAYER_X + 1, PLAYER_Y - 0.5, PLAYER_Z - 1)
+    draw_shotgun_model(PLAYER_X , PLAYER_Y , PLAYER_Z - 1)
     #* ---- Crosshair ---- #
     # Initialize
     glMatrixMode(GL_PROJECTION)
