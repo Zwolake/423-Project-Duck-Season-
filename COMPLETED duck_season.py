@@ -1,6 +1,6 @@
 #GAME TITLE : DUCK SEASON
 #Game Description : A 3D shooting game where the player shoots ducks assisted by built-in game features and difficulties
-# Features
+# Features :
 
 # Core Libraries and Dependencies
 # - OpenGL.GL, OpenGL.GLUT, OpenGL.GLU for 3D rendering
