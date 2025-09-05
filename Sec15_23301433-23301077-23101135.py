@@ -57,7 +57,7 @@ BULLETS = []    #? bullet list
 BULLET_SPEED = 100  #? bullet speed
 
 SCORE = 0   #? score + currency
-MONEY = 0
+MONEY = 200
 
 AMMO_COUNT = 8  #? ammo
 
@@ -505,6 +505,23 @@ def shoot():
         hud.shoot()
         AMMO_COUNT -= 1
 
+def restart_game():
+        global PLAYER_X, PLAYER_Y, PLAYER_Z, PLAYER_R, LOOK_X, LOOK_Y, LOOK_Z
+        global DUCKS, BULLETS, SCORE, MONEY, AMMO_COUNT, DUCK_SPEED
+        global hud, shop
+
+        PLAYER_X, PLAYER_Y, PLAYER_Z = 0, 0, 25
+        PLAYER_R = -90
+        LOOK_X, LOOK_Y, LOOK_Z = 0, 200, 25
+        DUCKS.clear()
+        BULLETS.clear()
+        SCORE = 0
+        MONEY = 200
+        AMMO_COUNT = 8
+        DUCK_SPEED = 5
+        hud = HUD()
+        shop = Shop(hud)
+
 #* ----- Keyboard ----- #
 def keyboardListener(key, _x, _y):
     #TODO assign movement
@@ -538,6 +555,10 @@ def keyboardListener(key, _x, _y):
     elif key == b'4':
         pass
 
+    if key == b'r':
+            restart_game()
+            print("Game restarted!")
+
 def keyboardUpListener(key, _x, _y):
     global shop, hud
     if key == b'w':
@@ -554,16 +575,18 @@ def keyboardUpListener(key, _x, _y):
         return
 
     if shop.active:
+        global AMMO_COUNT
         # allow purchase of G, A, or numbers 1,2
-        if key in [b'1', b'2']:
-            global AMMO_COUNT
-            if shop.purchase(key) == 1:
+        if key == b'1':
+            if shop.purchase(key):
                 hud.magazine_size += 2
                 hud.ammo += 2
                 AMMO_COUNT += 2
-            elif shop.purchase(key) == 2:
+        if key == b'2':
+            if shop.purchase(key):
                 hud.ammo = hud.magazine_size
                 AMMO_COUNT = hud.magazine_size
+
 
 def specialKeyListener(key, _x, _y):
     pass
@@ -725,8 +748,7 @@ def showScreen():
 def idle():
     global LOOK_X, LOOK_Y, LOOK_Z
     global PLAYER_X, PLAYER_Y, PLAYER_Z, PLAYER_R, PLAYER_SPEED
-    global BULLETS
-    global SCORE
+    global BULLETS, SCORE, DUCK_SPEED
     global shop, hud
 # ---------------------------------- #
     #* Player movement
@@ -786,20 +808,35 @@ def idle():
         # dz = abs(_z - PLAYER_Z)
 
         if dx <= DUCK_HITBOX/2 and dy <= DUCK_HITBOX/2:
-            if 1 < _z <= PLAYER_Z:
-                shop.currency += 25
-                SCORE = shop.currency
-                hud.score = shop.currency
+            if 1 < _z <= PLAYER_Z - 10:
+                s = 25
+                shop.currency += s
+                SCORE += s
+                hud.score += SCORE
                 hud.currency = shop.currency
                 DUCKS.remove(duck)
+                DUCK_SPEED += DUCK_SPEED_DELTA
                 print(f"score: {SCORE}")
+
             elif _z == 1:
-                shop.currency += 10
-                SCORE = shop.currency
-                hud.score = shop.currency
+                s = 10
+                shop.currency += s
+                SCORE += s
+                hud.score += SCORE
                 hud.currency = shop.currency
                 DUCKS.remove(duck)
+                DUCK_SPEED += DUCK_SPEED_DELTA
                 print(f"score: {SCORE}")
+
+
+            # shop.currency += s
+            # SCORE += s
+            # hud.score += SCORE
+            # hud.currency = shop.currency
+            # DUCKS.remove(duck)
+            # DUCK_SPEED += DUCK_SPEED_DELTA
+
+            # print(f"score: {SCORE}")
 
     # devDebug()
 
@@ -887,8 +924,9 @@ class Shop:
             if item["key"] == key or str(item["id"]) == key:
                 if hud.currency >= item["cost"]:
                     hud.currency -= item["cost"]
+                    self.currency -= item["cost"]
                     self.last_message = f"Purchased {item['name']}!"
-                    return item["id"]
+                    return True
                 else:
                     self.last_message = "Not enough points!"
                 self.last_message_time = time.time()
@@ -953,9 +991,9 @@ class Shop:
         [glutBitmapCharacter(font, ord(ch)) for ch in text]
 #end
 
-# Instantiate global objects
-hud = HUD()
-shop = Shop(hud)
+# # Instantiate global objects
+# hud = HUD()
+# shop = Shop(hud)
 
 # Global window dimensions
 window_width = 1280
