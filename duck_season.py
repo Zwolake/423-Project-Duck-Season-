@@ -467,6 +467,7 @@ def keyboardListener(key, _x, _y):
         pass
 
 def keyboardUpListener(key, _x, _y):
+    global shop, hud
     if key == b'w':
         BUTTONS['w']=False
     if key == b's':
@@ -475,8 +476,7 @@ def keyboardUpListener(key, _x, _y):
         BUTTONS['a']=False
     if key == b'd':
         BUTTONS['d']=False
-        
-    global shop, hud
+
     if key in [b'b', b'B']:
         shop.toggle()
         return
@@ -644,6 +644,7 @@ def idle():
     global PLAYER_X, PLAYER_Y, PLAYER_Z, PLAYER_R, PLAYER_SPEED
     global BULLETS
     global SCORE
+    global shop, hud
 # ---------------------------------- #
     #* Player movement
     if BUTTONS['w']:
@@ -704,7 +705,6 @@ def idle():
 
         if dx <= DUCK_HITBOX/2 and dy <= DUCK_HITBOX/2:
             if 1 < _z <= PLAYER_Z:
-                global shop, hud
                 shop.currency += 25
                 SCORE = shop.currency
                 hud.score = shop.currency
@@ -712,7 +712,6 @@ def idle():
                 DUCKS.remove(duck)
                 print(f"score: {SCORE}")
             elif _z == 1:
-                global shop, hud
                 shop.currency += 10
                 SCORE = shop.currency
                 hud.score = shop.currency
