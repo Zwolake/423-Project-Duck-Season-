@@ -347,226 +347,226 @@ def draw_surface():
 
 #! Border
 
-#! Shop - KAFI :
-# from OpenGL.GL import *
-# from OpenGL.GLUT import *
-# from OpenGL.GLU import *
-# import time
+# #! Shop - KAFI :
+# # from OpenGL.GL import *
+# # from OpenGL.GLUT import *
+# # from OpenGL.GLU import *
+# # import time
 
 
-class Shop:
-    def __init__(self, hud=None):
-        #shop status
-        self.active = False
-        self.hud = hud
+# class Shop:
+#     def __init__(self, hud=None):
+#         #shop status
+#         self.active = False
+#         self.hud = hud
 
-        #shop items
-        self.items = [
-            {"id": 1, "name": "Bigger Magazine", "key": "G", "description": "+5 bullets per reload", "cost": 100, "type": "perk", "effect": self.buy_magazine},
-            {"id": 2, "name": "Golden Gun Skin", "key": "H", "description": "Shiny golden rifle", "cost": 200, "type": "cosmetic", "effect": self.buy_skin},
-            {"id": 3, "name": "Health Boost", "key": "J", "description": "+20 HP instantly", "cost": 50, "type": "consumable", "effect": self.buy_health},
-            {"id": 4, "name": "Double Points (30s)", "key": "K", "description": "2x points for 30s", "cost": 150, "type": "timed", "effect": self.buy_double_points},
-            {"id": 5, "name": "Fast Reload (20s)", "key": "L", "description": "Reload speed x2 for 20s", "cost": 120, "type": "timed", "effect": self.buy_fast_reload},
-            {"id": 6, "name": "Armor Vest", "key": "M", "description": "Reduces damage taken by 50%", "cost": 250, "type": "perk", "effect": self.buy_armor},
-            {"id": 7, "name": "Night Vision", "key": "N", "description": "Better visibility at night", "cost": 180, "type": "perk", "effect": self.buy_night_vision},
-            {"id": 8, "name": "Stamina Boost", "key": "O", "description": "+50 max stamina", "cost": 120, "type": "perk", "effect": self.buy_stamina},
-            {"id": 9, "name": "New Weapon: SMG", "key": "P", "description": "Unlock SMG weapon", "cost": 400, "type": "weapon", "effect": self.buy_weapon},
-        ]
+#         #shop items
+#         self.items = [
+#             {"id": 1, "name": "Bigger Magazine", "key": "G", "description": "+5 bullets per reload", "cost": 100, "type": "perk", "effect": self.buy_magazine},
+#             {"id": 2, "name": "Golden Gun Skin", "key": "H", "description": "Shiny golden rifle", "cost": 200, "type": "cosmetic", "effect": self.buy_skin},
+#             {"id": 3, "name": "Health Boost", "key": "J", "description": "+20 HP instantly", "cost": 50, "type": "consumable", "effect": self.buy_health},
+#             {"id": 4, "name": "Double Points (30s)", "key": "K", "description": "2x points for 30s", "cost": 150, "type": "timed", "effect": self.buy_double_points},
+#             {"id": 5, "name": "Fast Reload (20s)", "key": "L", "description": "Reload speed x2 for 20s", "cost": 120, "type": "timed", "effect": self.buy_fast_reload},
+#             {"id": 6, "name": "Armor Vest", "key": "M", "description": "Reduces damage taken by 50%", "cost": 250, "type": "perk", "effect": self.buy_armor},
+#             {"id": 7, "name": "Night Vision", "key": "N", "description": "Better visibility at night", "cost": 180, "type": "perk", "effect": self.buy_night_vision},
+#             {"id": 8, "name": "Stamina Boost", "key": "O", "description": "+50 max stamina", "cost": 120, "type": "perk", "effect": self.buy_stamina},
+#             {"id": 9, "name": "New Weapon: SMG", "key": "P", "description": "Unlock SMG weapon", "cost": 400, "type": "weapon", "effect": self.buy_weapon},
+#         ]
 
-        #currency
-        self.currency = 0
+#         #currency
+#         self.currency = 0
 
-        #feedback
-        self.last_message = ""
-        self.last_message_time = 0
+#         #feedback
+#         self.last_message = ""
+#         self.last_message_time = 0
 
-        #timed effects
-        self.active_effects = {}  
+#         #timed effects
+#         self.active_effects = {}  
 
-    def toggle(self):
-        """Toggle shop screen on/off."""
-        self.active = not self.active
+#     def toggle(self):
+#         """Toggle shop screen on/off."""
+#         self.active = not self.active
 
-    def purchase(self, key, hud):
-        """Handle purchase attempt based on pressed key."""
-        for item in self.items:
-            if item["key"] == key.upper():
-                if self.currency >= item["cost"]:
-                    self.currency -= item["cost"]
-                    self.apply_effect(item, hud)
-                    self.last_message = f"Purchased {item['name']}!"
-                else:
-                    self.last_message = "Not enough points!"
-                self.last_message_time = time.time()
-                return True
-        return False
+#     def purchase(self, key, hud):
+#         """Handle purchase attempt based on pressed key."""
+#         for item in self.items:
+#             if item["key"] == key.upper():
+#                 if self.currency >= item["cost"]:
+#                     self.currency -= item["cost"]
+#                     self.apply_effect(item, hud)
+#                     self.last_message = f"Purchased {item['name']}!"
+#                 else:
+#                     self.last_message = "Not enough points!"
+#                 self.last_message_time = time.time()
+#                 return True
+#         return False
 
-    def purchase_by_id(self, item_id):
-        """Handle purchase attempt based on item ID (from provided code)."""
-        item = next((i for i in self.items if i["id"] == item_id), None)
-        if not item:
-            self.last_message = "Item not found!"
-            return
-        if self.currency >= item["cost"]:
-            self.currency -= item["cost"]
-            item["effect"]()
-            self.last_message = f"Bought {item['name']}"
-        else:
-            self.last_message = "Not enough points!"
+#     def purchase_by_id(self, item_id):
+#         """Handle purchase attempt based on item ID (from provided code)."""
+#         item = next((i for i in self.items if i["id"] == item_id), None)
+#         if not item:
+#             self.last_message = "Item not found!"
+#             return
+#         if self.currency >= item["cost"]:
+#             self.currency -= item["cost"]
+#             item["effect"]()
+#             self.last_message = f"Bought {item['name']}"
+#         else:
+#             self.last_message = "Not enough points!"
 
-    def apply_effect(self, item, hud):
-        """Apply purchased perk to the HUD/game state."""
-        name = item["name"]
+#     def apply_effect(self, item, hud):
+#         """Apply purchased perk to the HUD/game state."""
+#         name = item["name"]
 
-        if item["type"] == "perk":
-            if name == "Bigger Magazine":
-                hud.magazine_size += 5
-                hud.ammo = hud.magazine_size
-            elif name == "Armor Vest":
-                hud.armor = True
-            elif name == "Night Vision":
-                hud.night_vision = True
+#         if item["type"] == "perk":
+#             if name == "Bigger Magazine":
+#                 hud.magazine_size += 5
+#                 hud.ammo = hud.magazine_size
+#             elif name == "Armor Vest":
+#                 hud.armor = True
+#             elif name == "Night Vision":
+#                 hud.night_vision = True
 
-        elif item["type"] == "cosmetic":
-            if name == "Golden Gun Skin":
-                hud.messages.append(("Golden Gun Equipped!", time.time()))
-                hud.skin = "golden"
+#         elif item["type"] == "cosmetic":
+#             if name == "Golden Gun Skin":
+#                 hud.messages.append(("Golden Gun Equipped!", time.time()))
+#                 hud.skin = "golden"
 
-        elif item["type"] == "consumable":
-            if name == "Health Boost":
-                hud.health = min(100, hud.health + 20)
+#         elif item["type"] == "consumable":
+#             if name == "Health Boost":
+#                 hud.health = min(100, hud.health + 20)
 
-        elif item["type"] == "timed":
-            duration = 30 if "Double Points" in name else 20
-            expiry = time.time() + duration
-            self.active_effects[name] = expiry
-            hud.messages.append((f"{name} Activated!", time.time()))
+#         elif item["type"] == "timed":
+#             duration = 30 if "Double Points" in name else 20
+#             expiry = time.time() + duration
+#             self.active_effects[name] = expiry
+#             hud.messages.append((f"{name} Activated!", time.time()))
 
-    def update_effects(self, hud):
-        """Check and expire timed effects."""
-        now = time.time()
-        expired = []
-        for effect, expiry in self.active_effects.items():
-            if now > expiry:
-                expired.append(effect)
+#     def update_effects(self, hud):
+#         """Check and expire timed effects."""
+#         now = time.time()
+#         expired = []
+#         for effect, expiry in self.active_effects.items():
+#             if now > expiry:
+#                 expired.append(effect)
 
-        #remove expired effects
-        for effect in expired:
-            hud.messages.append((f"{effect} expired!", time.time()))
-            del self.active_effects[effect]
+#         #remove expired effects
+#         for effect in expired:
+#             hud.messages.append((f"{effect} expired!", time.time()))
+#             del self.active_effects[effect]
 
-    def has_effect(self, effect_name):
-        """Check if a timed effect is active."""
-        return effect_name in self.active_effects
+#     def has_effect(self, effect_name):
+#         """Check if a timed effect is active."""
+#         return effect_name in self.active_effects
 
-    #effect
-    def buy_magazine(self):
-        if self.hud:
-            self.hud.magazine_size += 5
-            self.hud.ammo = self.hud.magazine_size
-            self.hud.messages.append(("Magazine +5", time.time()))
+#     #effect
+#     def buy_magazine(self):
+#         if self.hud:
+#             self.hud.magazine_size += 5
+#             self.hud.ammo = self.hud.magazine_size
+#             self.hud.messages.append(("Magazine +5", time.time()))
 
-    def buy_reload(self):
-        if self.hud:
-            self.hud.messages.append(("Reload faster!", time.time()))
+#     def buy_reload(self):
+#         if self.hud:
+#             self.hud.messages.append(("Reload faster!", time.time()))
 
-    def buy_armor(self):
-        if self.hud:
-            self.hud.armor = True
-            self.hud.messages.append(("Armor Equipped", time.time()))
+#     def buy_armor(self):
+#         if self.hud:
+#             self.hud.armor = True
+#             self.hud.messages.append(("Armor Equipped", time.time()))
 
-    def buy_stamina(self):
-        if self.hud:
-            self.hud.max_stamina += 50
-            self.hud.stamina = self.hud.max_stamina
-            self.hud.messages.append(("Stamina Boosted!", time.time()))
+#     def buy_stamina(self):
+#         if self.hud:
+#             self.hud.max_stamina += 50
+#             self.hud.stamina = self.hud.max_stamina
+#             self.hud.messages.append(("Stamina Boosted!", time.time()))
 
-    def buy_night_vision(self):
-        if self.hud:
-            self.hud.night_vision = not self.hud.night_vision
-            self.hud.messages.append(("Night Vision ON" if self.hud.night_vision else "Night Vision OFF", time.time()))
+#     def buy_night_vision(self):
+#         if self.hud:
+#             self.hud.night_vision = not self.hud.night_vision
+#             self.hud.messages.append(("Night Vision ON" if self.hud.night_vision else "Night Vision OFF", time.time()))
 
-    def buy_skin(self):
-        if self.hud:
-            self.hud.skin = "golden"
-            self.hud.messages.append(("Golden Skin Equipped!", time.time()))
+#     def buy_skin(self):
+#         if self.hud:
+#             self.hud.skin = "golden"
+#             self.hud.messages.append(("Golden Skin Equipped!", time.time()))
 
-    def buy_weapon(self):
-        if self.hud:
-            if "SMG" not in self.hud.weapons:
-                self.hud.weapons.append("SMG")
-                self.hud.messages.append(("Unlocked SMG!", time.time()))
+#     def buy_weapon(self):
+#         if self.hud:
+#             if "SMG" not in self.hud.weapons:
+#                 self.hud.weapons.append("SMG")
+#                 self.hud.messages.append(("Unlocked SMG!", time.time()))
 
-    def buy_health(self):
-        if self.hud:
-            self.hud.health = min(100, self.hud.health + 20)
-            self.hud.messages.append(("Health Boosted!", time.time()))
+#     def buy_health(self):
+#         if self.hud:
+#             self.hud.health = min(100, self.hud.health + 20)
+#             self.hud.messages.append(("Health Boosted!", time.time()))
 
-    def buy_double_points(self):
-        if self.hud:
-            duration = 30
-            expiry = time.time() + duration
-            self.active_effects["Double Points (30s)"] = expiry
-            self.hud.messages.append(("Double Points Activated!", time.time()))
+#     def buy_double_points(self):
+#         if self.hud:
+#             duration = 30
+#             expiry = time.time() + duration
+#             self.active_effects["Double Points (30s)"] = expiry
+#             self.hud.messages.append(("Double Points Activated!", time.time()))
 
-    def buy_fast_reload(self):
-        if self.hud:
-            duration = 20
-            expiry = time.time() + duration
-            self.active_effects["Fast Reload (20s)"] = expiry
-            self.hud.messages.append(("Fast Reload Activated!", time.time()))
+#     def buy_fast_reload(self):
+#         if self.hud:
+#             duration = 20
+#             expiry = time.time() + duration
+#             self.active_effects["Fast Reload (20s)"] = expiry
+#             self.hud.messages.append(("Fast Reload Activated!", time.time()))
 
-    def draw_text(self, x, y, text, font=GLUT_BITMAP_HELVETICA_18):
-        glRasterPos2f(x, y)
-        for ch in text:
-            glutBitmapCharacter(font, ord(ch))
+#     def draw_text(self, x, y, text, font=GLUT_BITMAP_HELVETICA_18):
+#         glRasterPos2f(x, y)
+#         for ch in text:
+#             glutBitmapCharacter(font, ord(ch))
 
-    def render(self, window_w, window_h):
-        """Render the shop screen overlay."""
-        if not self.active:
-            return
+#     def render(self, window_w, window_h):
+#         """Render the shop screen overlay."""
+#         if not self.active:
+#             return
 
-        glMatrixMode(GL_PROJECTION)
-        glPushMatrix()
-        glLoadIdentity()
-        gluOrtho2D(0, window_w, 0, window_h)
-        glMatrixMode(GL_MODELVIEW)
-        glPushMatrix()
-        glLoadIdentity()
+#         glMatrixMode(GL_PROJECTION)
+#         glPushMatrix()
+#         glLoadIdentity()
+#         gluOrtho2D(0, window_w, 0, window_h)
+#         glMatrixMode(GL_MODELVIEW)
+#         glPushMatrix()
+#         glLoadIdentity()
 
-        glDisable(GL_LIGHTING)
-        cx, cy = window_w // 2, window_h // 2
+#         glDisable(GL_LIGHTING)
+#         cx, cy = window_w // 2, window_h // 2
 
-        #shop title
-        glColor3f(1, 1, 0)
-        self.draw_text(cx - 60, cy + 130, "=== SHOP ===")
-        glColor3f(1, 1, 1)
-        self.draw_text(cx - 120, cy + 100, f"Points Available: {self.currency}")
+#         #shop title
+#         glColor3f(1, 1, 0)
+#         self.draw_text(cx - 60, cy + 130, "=== SHOP ===")
+#         glColor3f(1, 1, 1)
+#         self.draw_text(cx - 120, cy + 100, f"Points Available: {self.currency}")
 
-        #item list
-        y_offset = 0
-        for item in self.items:
-            color = (0.5, 1, 0.5) if self.currency >= item["cost"] else (1, 0.3, 0.3)
-            glColor3f(*color)
-            self.draw_text(cx - 250, cy + 60 - y_offset,
-                           f"[{item['key']}] {item['name']} ({item['cost']} pts) - {item['description']}")
-            y_offset += 25
+#         #item list
+#         y_offset = 0
+#         for item in self.items:
+#             color = (0.5, 1, 0.5) if self.currency >= item["cost"] else (1, 0.3, 0.3)
+#             glColor3f(*color)
+#             self.draw_text(cx - 250, cy + 60 - y_offset,
+#                            f"[{item['key']}] {item['name']} ({item['cost']} pts) - {item['description']}")
+#             y_offset += 25
 
-        #instructions
-        glColor3f(0.8, 0.8, 0.8)
-        self.draw_text(cx - 160, cy - 120, "Press item key to buy • Press B to exit")
+#         #instructions
+#         glColor3f(0.8, 0.8, 0.8)
+#         self.draw_text(cx - 160, cy - 120, "Press item key to buy • Press B to exit")
 
-        #last purchase message
-        if time.time() - self.last_message_time < 2:
-            glColor3f(0, 1, 0)
-            self.draw_text(cx - 100, cy - 150, self.last_message)
+#         #last purchase message
+#         if time.time() - self.last_message_time < 2:
+#             glColor3f(0, 1, 0)
+#             self.draw_text(cx - 100, cy - 150, self.last_message)
 
-        #restore
-        glEnable(GL_LIGHTING)
-        glMatrixMode(GL_PROJECTION)
-        glPopMatrix()
-        glMatrixMode(GL_MODELVIEW)
-        glPopMatrix()
+#         #restore
+#         glEnable(GL_LIGHTING)
+#         glMatrixMode(GL_PROJECTION)
+#         glPopMatrix()
+#         glMatrixMode(GL_MODELVIEW)
+#         glPopMatrix()
 
 
 #TODO - UI
@@ -696,6 +696,18 @@ def keyboardUpListener(key, _x, _y):
         BUTTONS['a']=False
     if key == b'd':
         BUTTONS['d']=False
+        
+    global shop, hud
+    if key in [b'b', b'B']:
+        shop.toggle()
+        return
+
+    if shop.active:
+        # only allow purchase of G or A now
+        if key in [b'g', b'G', b'a', b'A']:
+            shop.purchase(key)
+            return
+        return
 
 def specialKeyListener(key, _x, _y):
     pass
@@ -759,7 +771,6 @@ def setupCamera():
               0, 0, 1)  # Up vector
     
 #* display function -> draw
-#kafi: 
 #render shop 
 def display():
     global hud, shop
@@ -928,272 +939,146 @@ def idle():
     # Schedule next frame
     # glutTimerFunc(FRAME_TIME_MS, idle, 0)
 
-#KAFI---bruh wasnt sure where to add so pasting it here (may have overdone stuff and maybe it wont work :v ) : 
-#HUD ----------->
-# from OpenGL.GL import *
-# from OpenGL.GLUT import *
-# from OpenGL.GLU import *
-# import math, time, random
+#KAFI : 
 
+#hud->
 class HUD:
     def __init__(self):
-        #stats
-        self.score = 0
-        self.ammo = 10
-        self.health = 100
-        self.level = 1
-        self.magazine_size = 10
-        self.last_hit_time = 0
-        self.crosshair_size = 10
-        self.messages = []  # floating text
-        self.start_time = time.time()
-
-        #UI
-        self.menu = False
-        self.shop_active = False
-        self.reticle_good = True
-
-        #features
-        self.skin = "default"
-        self.armor = False
-        self.night_vision = False
-
-        #advanced features
-        self.stamina = 100
-        self.max_stamina = 100
-        self.is_sprinting = False
-
-        self.xp = 0
-        self.xp_to_next = 100
-
-        self.weapons = ["Sniper", "Shotgun", "Pistol"]
-        self.current_weapon = 0
-
-        self.achievements = []
-        self.active_achievements = []  
-
-        #minimap objects
-        self.player_pos = (0, 0)
-        self.duck_positions = []  
-
-    #basic mechanics
-    def add_score(self, value, distance=1.0):
-        gained = int(value * distance)
-        self.score += gained
-        self.messages.append((f"+{gained} pts", time.time()))
-        self.gain_xp(gained)
-
-    def damage(self, value):
-        self.health = max(0, self.health - value)
-        self.last_hit_time = time.time()
-        self.messages.append((f"-{value} HP", time.time()))
-        if self.health <= 0:
-            self.unlock_achievement("Game Over Survivor")
-
-    def reload(self):
-        self.ammo = self.magazine_size
-        self.messages.append(("Reloaded", time.time()))
-
+        self.score, self.ammo, self.magazine_size = 0, 10, 10
+        self.health, self.crosshair_size = 100, 10
+        self.messages, self.last_shot_time = [], 0.0
+        self.night_vision, self.auto_fire_active = False, False
+    def draw_text(self,x,y,text,font=GLUT_BITMAP_HELVETICA_18):
+        glRasterPos2f(x,y)
+        for ch in text: glutBitmapCharacter(font, ord(ch))
     def shoot(self):
-        if self.ammo > 0:
-            self.ammo -= 1
-            return True
-        else:
-            self.messages.append(("Out of Ammo!", time.time()))
-            return False
-
-    def next_level(self):
-        self.level += 1
-        self.messages.append((f"Level {self.level}", time.time()))
-        self.xp = 0
-        self.xp_to_next = int(self.xp_to_next * 1.2)
-
-    def gain_xp(self, amount):
-        self.xp += amount
-        if self.xp >= self.xp_to_next:
-            self.next_level()
-
-    #achievements
-    def unlock_achievement(self, name):
-        if name not in self.achievements:
-            self.achievements.append(name)
-            self.active_achievements.append((name, time.time()))
-
-    #drawing Helpers
-    def draw_text(self, x, y, text, font=GLUT_BITMAP_HELVETICA_18):
-        glRasterPos2f(x, y)
-        for ch in text:
-            glutBitmapCharacter(font, ord(ch))
-
-    def draw_bar(self, x, y, w, h, value, max_value, color=(0, 1, 0)):
-        glColor3f(*color)
-        glBegin(GL_QUADS)
-        glVertex2f(x, y)
-        glVertex2f(x + (w * (value / max_value)), y)
-        glVertex2f(x + (w * (value / max_value)), y + h)
-        glVertex2f(x, y + h)
+        now, cooldown = time.time(), (0.1 if self.auto_fire_active else 0.5)
+        if now - self.last_shot_time < cooldown: return False
+        if self.ammo>0:
+            self.ammo -= 1; self.last_shot_time = now; return True
+        self.messages.append(("Out of Ammo!",time.time())); return False
+    def reload(self):
+        self.ammo=self.magazine_size; self.messages.append(("Reloaded!",time.time()))
+    def render(self,w,h):
+        glMatrixMode(GL_PROJECTION); glPushMatrix(); glLoadIdentity(); gluOrtho2D(0,w,0,h)
+        glMatrixMode(GL_MODELVIEW); glPushMatrix(); glLoadIdentity()
+        glDisable(GL_LIGHTING); glDisable(GL_DEPTH_TEST); glEnable(GL_BLEND)
+        glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA)
+        glColor3f(1,1,1); self.draw_text(20,h-30,f"Score: {self.score}")
+        self.draw_text(20,h-55,f"Ammo: {self.ammo}/{self.magazine_size}")
+        cx, cy, size = w//2, h//2, self.crosshair_size
+        glColor3f(0.1,1.0,0.1)
+        glBegin(GL_LINES)
+        glVertex2f(cx-size,cy); glVertex2f(cx+size,cy)
+        glVertex2f(cx,cy-size); glVertex2f(cx,cy+size)
         glEnd()
-        #outline
-        glColor3f(1, 1, 1)
-        glBegin(GL_LINE_LOOP)
-        glVertex2f(x, y)
-        glVertex2f(x + w, y)
-        glVertex2f(x + w, y + h)
-        glVertex2f(x, y + h)
-        glEnd()
+        now=time.time(); msgs=[]; y_off=0
+        for msg,t in self.messages:
+            if now-t<2.0:
+                glColor3f(1,1,0); self.draw_text(w//2-40,h//2+60+y_off,msg)
+                y_off+=20; msgs.append((msg,t))
+        self.messages=msgs
+        glDisable(GL_BLEND); glEnable(GL_DEPTH_TEST); glEnable(GL_LIGHTING)
+        glMatrixMode(GL_PROJECTION); glPopMatrix(); glMatrixMode(GL_MODELVIEW); glPopMatrix()
 
-    #minimap
-    def render_minimap(self, window_w, window_h):
-        size = 120
-        cx, cy = window_w - size - 20, window_h - size - 20
-        #background
-        glColor3f(0.1, 0.1, 0.1)
-        glBegin(GL_QUADS)
-        glVertex2f(cx, cy)
-        glVertex2f(cx + size, cy)
-        glVertex2f(cx + size, cy + size)
-        glVertex2f(cx, cy + size)
-        glEnd()
-        #border
-        glColor3f(1, 1, 1)
-        glBegin(GL_LINE_LOOP)
-        glVertex2f(cx, cy)
-        glVertex2f(cx + size, cy)
-        glVertex2f(cx + size, cy + size)
-        glVertex2f(cx, cy + size)
-        glEnd()
 
-        #player dot
-        px, py = self.player_pos
-        glColor3f(0, 1, 0)
-        glBegin(GL_POINTS)
-        glVertex2f(cx + size / 2, cy + size / 2)
-        glEnd()
+#shop ->
+class Shop:
+    def __init__(self, hud):
+        self.active = False
+        self.hud = hud
+        self.currency = 0
+        self.items = [
+            {"name": "Bigger Magazine", "key": "G", "cost": 100},
+            {"name": "Auto Fire Mode", "key": "A", "cost": 200}
+        ]
+        self.last_message = ""
+        self.last_message_time = 0
 
-        #ducks as red dots
-        glColor3f(1, 0, 0)
-        glBegin(GL_POINTS)
-        for dx, dy in self.duck_positions:
-            mx = cx + size / 2 + dx * 0.1
-            my = cy + size / 2 + dy * 0.1
-            glVertex2f(mx, my)
-        glEnd()
+    def toggle(self):
+        self.active = not self.active
+        glutSetCursor(GLUT_CURSOR_LEFT_ARROW if self.active else GLUT_CURSOR_NONE)
 
-    #render
-    def render(self, window_w, window_h):
+    def purchase(self, key):
+        key = key.decode("utf-8").upper()
+        for item in self.items:
+            if item["key"] == key:
+                if self.currency >= item["cost"]:
+                    self.currency -= item["cost"]
+                    self.last_message = f"Purchased {item['name']}!"
+                else:
+                    self.last_message = "Not enough points!"
+                self.last_message_time = time.time()
+                return True
+        return False
+
+    def render(self, w, h):
+        if not self.active:
+            return
         glMatrixMode(GL_PROJECTION)
         glPushMatrix()
         glLoadIdentity()
-        gluOrtho2D(0, window_w, 0, window_h)
+        gluOrtho2D(0, w, 0, h)
         glMatrixMode(GL_MODELVIEW)
         glPushMatrix()
         glLoadIdentity()
 
         glDisable(GL_LIGHTING)
-        now = time.time()
+        glDisable(GL_DEPTH_TEST)
+        glEnable(GL_BLEND)
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
-        #score, ammo, health
-        glColor3f(1, 1, 1)
-        self.draw_text(20, window_h - 30, f"Score: {self.score}")
-        self.draw_text(20, window_h - 55, f"Ammo: {self.ammo}/{self.magazine_size}")
-        self.draw_text(20, window_h - 80, f"Health: {self.health}")
-        self.draw_text(20, window_h - 105, f"Level: {self.level}")
-
-        #bars
-        self.draw_bar(20, 40, 200, 15, self.stamina, self.max_stamina, (0, 0.7, 1))  # stamina
-        self.draw_text(20, 60, "Stamina")
-
-        self.draw_bar(20, 20, 200, 15, self.xp, self.xp_to_next, (1, 1, 0))  # XP
-        self.draw_text(20, 5, "XP")
-
-        #crosshair
-        cx, cy = window_w // 2, window_h // 2
-        size = self.crosshair_size
-        glColor3f(0.1, 1.0 if self.reticle_good else 0.2, 0.1 if self.reticle_good else 0.2)
-        glBegin(GL_LINES)
-        glVertex2f(cx - size, cy)
-        glVertex2f(cx + size, cy)
-        glVertex2f(cx, cy - size)
-        glVertex2f(cx, cy + size)
+        glColor4f(0, 0, 0, 0.7)
+        glBegin(GL_QUADS)
+        glVertex2f(0, 0)
+        glVertex2f(w, 0)
+        glVertex2f(w, h)
+        glVertex2f(0, h)
         glEnd()
 
-        #minimap
-        self.render_minimap(window_w, window_h)
+        cx, cy = w // 2, h // 2
+        glColor3f(1, 1, 0)
+        self.draw_text(cx - 60, cy + 130, "=== SHOP ===")
 
-        #floating messages
-        active = []
-        y_offset = 0
-        for msg, t in self.messages:
-            if now - t < 2.0:
-                glColor3f(1, 1, 0)
-                self.draw_text(window_w // 2 - 40, window_h // 2 + 60 + y_offset, msg)
-                y_offset += 20
-                active.append((msg, t))
-        self.messages = active
+        glColor3f(1, 1, 1)
+        self.draw_text(cx - 120, cy + 100, f"Points: {self.currency}")
 
-        #achievements
-        ach_active = []
-        y = window_h - 150
-        for name, t in self.active_achievements:
-            if now - t < 3.0:
-                alpha = 1 - ((now - t) / 3.0)
-                glColor3f(0, 1, alpha)
-                self.draw_text(window_w // 2 - 100, y, f"Achievement Unlocked: {name}")
-                y -= 20
-                ach_active.append((name, t))
-        self.active_achievements = ach_active
+        y_off = 0
+        for item in self.items:
+            glColor3f(0.5, 1, 0.5 if self.currency >= item["cost"] else 0.3)
+            self.draw_text(
+                cx - 250,
+                cy + 60 - y_off,
+                f"[{item['key']}] {item['name']} ({item['cost']} pts)"
+            )
+            y_off += 25
 
-        #damage
-        if now - self.last_hit_time < 0.5:
-            alpha = 1 - ((now - self.last_hit_time) / 0.5)
-            glColor4f(1, 0, 0, alpha)
-            glBegin(GL_QUADS)
-            glVertex2f(0, 0)
-            glVertex2f(window_w, 0)
-            glVertex2f(window_w, window_h)
-            glVertex2f(0, window_h)
-            glEnd()
+        if time.time() - self.last_message_time < 2:
+            glColor3f(0, 1, 0)
+            self.draw_text(cx - 100, cy - 150, self.last_message)
 
-        #weapon icons
-        x = window_w - 200
-        for i, weapon in enumerate(self.weapons):
-            glColor3f(1, 1, 1 if i == self.current_weapon else 0.3)
-            glBegin(GL_QUADS)
-            glVertex2f(x + i * 60, 40)
-            glVertex2f(x + i * 60 + 50, 40)
-            glVertex2f(x + i * 60 + 50, 90)
-            glVertex2f(x + i * 60, 90)
-            glEnd()
-            glColor3f(0, 0, 0)
-            self.draw_text(x + i * 60 + 10, 65, weapon[0])  # initial as icon
-
-        #restore
+        glDisable(GL_BLEND)
+        glEnable(GL_DEPTH_TEST)
         glEnable(GL_LIGHTING)
+
         glMatrixMode(GL_PROJECTION)
         glPopMatrix()
         glMatrixMode(GL_MODELVIEW)
         glPopMatrix()
 
-    #utilities
-    def get_elapsed_time(self):
-        return int(time.time() - self.start_time)
+    def draw_text(self, x, y, text, font=GLUT_BITMAP_HELVETICA_18):
+        glRasterPos2f(x, y)
+        [glutBitmapCharacter(font, ord(ch)) for ch in text]
+#end
 
-    def reset(self):
-        self.score = 0
-        self.ammo = self.magazine_size
-        self.health = 100
-        self.level = 1
-        self.start_time = time.time()
-        self.messages = []
-        self.xp = 0
-        self.achievements = []
-        self.active_achievements = []
-#HUD END
-#kafi
+# Instantiate global objects
 hud = HUD()
-shop = Shop(hud=hud) 
+shop = Shop(hud)
 
-# main loop
+# Global window dimensions
+window_width = 1280
+window_height = 720
+
 def main():
     glutInit()
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH | GLUT_MULTISAMPLE)  # Double buffering, RGB color, depth test
@@ -1201,12 +1086,16 @@ def main():
     glutInitWindowPosition(100, 100)  # Window position
     glutCreateWindow(b"Duck Season")  # Create the window
 
+    global hud, shop
+    hud = HUD()
+    shop = Shop(hud)
+
     glutDisplayFunc(showScreen)  # Register display function
     glutKeyboardFunc(keyboardListener)  # Register keyboard listener
     glutKeyboardUpFunc(keyboardUpListener)  # Register keyboard up listener
     glutSpecialFunc(specialKeyListener)
     glutMouseFunc(mouseListener)
-    # glutPassiveMotionFunc(passiveMouseListener) 
+    # glutPassiveMotionFunc(passiveMouseListener)
     glutIdleFunc(idle)  # FPS limiting uses timer instead
     # idle()  # Start the timer-based loop
 
