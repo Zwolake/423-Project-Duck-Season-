@@ -654,7 +654,7 @@ def display():
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
     
     # draw 3D world (ducks, environment, gun, etc.)
-    
+
     # draw HUD
     hud.render(window_width, window_height)
 
@@ -698,6 +698,8 @@ def showScreen():
         duck.draw_duck()
         state = "flying"
         #draw_duck(x, y, z, state)
+
+    draw_shotgun_model(PLAYER_X, PLAYER_Y, PLAYER_Z - 1)
 
     for bullet in BULLETS:
         bullet.draw()
