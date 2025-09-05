@@ -57,6 +57,7 @@ BULLETS = []    #? bullet list
 BULLET_SPEED = 100  #? bullet speed
 
 SCORE = 0   #? score + currency
+MONEY = 200
 
 AMMO_COUNT = 8  #? ammo
 
@@ -248,10 +249,6 @@ class Duck: #? duck
         self.state = 'dead'
         self.wing_angle = 0.0
 
-#! Dog(?)
-#! Wolves(?)
-
-#TODO Rifle
 def draw_shotgun_model(x, y, z):
     
     global gun_brown, gun_dark_brown, gun_black, gun_scale
@@ -338,8 +335,6 @@ def draw_shotgun_model(x, y, z):
     glPopMatrix()
 
     glPopMatrix()
-
-
 
 #* ----- Bullet ----- #
 class Bullet:   #? bullet 
@@ -433,19 +428,6 @@ def draw_surface():
 
     glEnd()
         
-
-#! Border
-
-
-#TODO - UI
-#! Ammo count
-#! Money display
-#! Shop UI - numbers corresponding to items
-#! Crosshair
-
-#TODO Implement game logic
-#! Shop interactions
-
 #* ----- Controls ----- #
 def move_forward():
     global PLAYER_X, PLAYER_Y, PLAYER_Z
@@ -616,8 +598,6 @@ def mouseListener(button, state, _x, _y):
         LOOK_Z = max(LOOK_Z - (1 * LOOK_SPEED_Z), -SKYBOX_HEIGHT)
         pass
 
-#TODO Finishing touch
-
 # ----- DEBUG ----- #
 def devDebug():
     if not hasattr(devDebug, "last_print_time"):
@@ -644,9 +624,6 @@ def setupCamera():
               PLAYER_X + LOOK_X , PLAYER_Y + LOOK_Y + 1, LOOK_Z,  # Look at point
               0, 0, 1)  # Up vector
     
-
-
-
 #* display function -> draw
 #render shop 
 def display():
@@ -743,8 +720,6 @@ def showScreen():
 
     glutSwapBuffers()
 
-# FPS = 60  # Target frames per second
-# FRAME_TIME_MS = int(1000 / FPS)
 
 #* ----- Idle ----- #
 def idle():
@@ -774,7 +749,6 @@ def idle():
         aim_right()
         # print(PLAYER_R)
         # print("Aim Right")
-
 
     #* ---- Duck animation ---- #
     for duck in DUCKS:
@@ -833,13 +807,11 @@ def idle():
     # Schedule next frame
     # glutTimerFunc(FRAME_TIME_MS, idle, 0)
 
-#KAFI : 
 
-#hud->
 class HUD:
     def __init__(self):
         self.score, self.c, self.magazine_size = 0, AMMO_COUNT, 8
-        self.currency = 1000
+        self.currency = MONEY
         self.health, self.crosshair_size = 100, 10
         self.messages, self.last_shot_time = [], 0.0
         self.night_vision, self.auto_fire_active = False, False
@@ -897,7 +869,7 @@ class Shop:
     def __init__(self, hud):
         self.active = False
         self.hud = hud
-        self.currency = 200
+        self.currency = MONEY
         self.items = [
             {"id": 1, "name": "Bigger Magazine", "key": "G", "cost": 100},
             {"id": 2, "name": "Refill Magazine", "key": "A", "cost": 50}
