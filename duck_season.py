@@ -64,7 +64,6 @@ TREE_COUNT = 1000 #? environment tree count
 rand_x = [random.uniform(-GROUND_X, GROUND_X) for _ in range(TREE_COUNT)]
 rand_y = [random.uniform(GROUND_Y, -GROUND_Y) for _ in range(TREE_COUNT)]
 
-
 # Color Variables
 duck_light_gray = (0.7, 0.7, 0.7)
 duck_med_gray = (0.6, 0.6, 0.6)
@@ -486,10 +485,15 @@ def keyboardUpListener(key, _x, _y):
 
     if shop.active:
         # allow purchase of G, A, or numbers 1,2
-        if key in [b'g', b'G', b'a', b'A', b'1', b'2']:
-            shop.purchase(key)
-            return
-        return
+        if key in [b'1', b'2']:
+            global AMMO_COUNT
+            if shop.purchase(key) == 1:
+                hud.magazine_size += 2
+                hud.ammo += 2
+                AMMO_COUNT += 2
+            elif shop.purchase(key) == 2:
+                hud.ammo = hud.magazine_size
+                AMMO_COUNT = hud.magazine_size
 
 def specialKeyListener(key, _x, _y):
     pass
@@ -741,8 +745,8 @@ def idle():
 #hud->
 class HUD:
     def __init__(self):
-        self.score, self.ammo, self.magazine_size = 0, AMMO_COUNT, 10
-        self.currency = 0
+        self.score, self.c, self.magazine_size = 0, AMMO_COUNT, 8
+        self.currency = 1000
         self.health, self.crosshair_size = 100, 10
         self.messages, self.last_shot_time = [], 0.0
         self.night_vision, self.auto_fire_active = False, False
@@ -758,10 +762,15 @@ class HUD:
             self.ammo -= 1; self.last_shot_time = now; return True
         self.messages.append(("Out of Ammo!",time.time())); return False
     
+
     def reload(self):
-        self.ammo=self.magazine_size; self.messages.append(("Reloaded!",time.time()))
+        self.ammo=self.magazine_size
+        self.messages.append(("Reloaded!",time.time()))
 
     def render(self,w,h):
+        self.score = SCORE
+        self.ammo = AMMO_COUNT
+
         glMatrixMode(GL_PROJECTION); glPushMatrix(); glLoadIdentity(); gluOrtho2D(0,w,0,h)
         glMatrixMode(GL_MODELVIEW); glPushMatrix(); glLoadIdentity()
         glDisable(GL_LIGHTING); glDisable(GL_DEPTH_TEST); glEnable(GL_BLEND)
@@ -769,7 +778,7 @@ class HUD:
 
         glColor3f(1,1,1); self.draw_text(20,h-30,f"Score: {self.score}")
 
-        self.draw_text(20,h-55,f"Ammo: {self.ammo}/{self.magazine_size}")
+        self.draw_text(20,h-55,f"Ammo: {AMMO_COUNT}/{self.magazine_size}")
         self.draw_text(20,h-80,f"Currency: {self.currency}")
         cx, cy, size = w//2, h//2, self.crosshair_size
 
@@ -795,10 +804,10 @@ class Shop:
     def __init__(self, hud):
         self.active = False
         self.hud = hud
-        self.currency = 0
+        self.currency = 200
         self.items = [
             {"id": 1, "name": "Bigger Magazine", "key": "G", "cost": 100},
-            {"id": 2, "name": "Auto Fire Mode", "key": "A", "cost": 200}
+            {"id": 2, "name": "Refill Magazine", "key": "A", "cost": 50}
         ]
         self.last_message = ""
         self.last_message_time = 0
@@ -811,14 +820,14 @@ class Shop:
         key = key.decode("utf-8").upper()
         for item in self.items:
             if item["key"] == key or str(item["id"]) == key:
-                if self.currency >= item["cost"]:
-                    self.currency -= item["cost"]
+                if hud.currency >= item["cost"]:
+                    hud.currency -= item["cost"]
                     self.last_message = f"Purchased {item['name']}!"
+                    return item["id"]
                 else:
                     self.last_message = "Not enough points!"
                 self.last_message_time = time.time()
-                return True
-        return False
+        return 0
 
     def render(self, w, h):
         if not self.active:
