@@ -57,7 +57,7 @@ BULLETS = []    #? bullet list
 BULLET_SPEED = 100  #? bullet speed
 
 SCORE = 0   #? score + currency
-MONEY = 200
+MONEY = 0
 
 AMMO_COUNT = 8  #? ammo
 
