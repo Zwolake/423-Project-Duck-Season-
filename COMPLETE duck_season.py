@@ -1,3 +1,153 @@
+#Game Description : 
+# Features
+
+# Core Libraries and Dependencies
+# - OpenGL.GL, OpenGL.GLUT, OpenGL.GLU for 3D rendering
+# - math for trigonometric calculations
+# - random for procedural generation
+# - time for timing and cooldowns
+# - sys for system exit
+
+# Game Configuration & Constants
+# - Window Settings: 1280x720 resolution
+# - Player & Camera:
+#   - Movement speed: 1.5 units/frame
+#   - Mouse look sensitivity
+#   - Vertical pitch control
+#   - FOV: 70 degrees (normal), 20 degrees (sniper)
+# - World:
+#   - Ground size: 2000x2000 units
+#   - Skybox height: 1000 units
+#   - Gravity: 0.5 units/frame²
+# - Trees: 50 randomly placed trees as obstacles
+# - Ducks:
+#   - 20 flying ducks
+#   - 20 ground ducks
+#   - Flying height range: 300-600 units
+#   - Speed: 1.0 units/frame
+#   - Hitbox radius: 135 units
+# - Bullets:
+#   - Speed: 10.0 units/frame
+#   - Lifespan: 5 seconds
+# - Dog Companion:
+#   - Cost: 100 points
+#   - Deployment duration: 30 seconds
+#   - Hunting window: 5-10 seconds
+#   - Speed: 3.0 units/frame
+#   - Catch radius: 60 units
+# - Color Schemes: 5 different duck color variations
+
+# Game Objects
+
+# Duck Class
+# - States: flying, falling, dead
+# - Features:
+#   - Wing flapping animation (angle increment: 10°/frame)
+#   - 3D model with body, neck, head, beak, eyes, wings, legs, tail
+#   - Random color schemes
+#   - Collision with trees
+#   - Boundary reset when flying too far
+#   - Size scaling based on state
+
+# GroundDuck Class (inherits from Duck)
+# - States: walking, dead
+# - Features:
+#   - Ground-based movement with random direction changes
+#   - Walking animation with leg swinging
+#   - Wing flapping same as flying ducks
+#   - Collision avoidance with trees
+#   - Z-axis movement (up/down on ground)
+
+# Bullet Class
+# - Simple projectile with position, direction, and creation time
+# - Yellow sphere representation
+# - Automatic removal after lifespan
+
+# Dog Class
+# - Features:
+#   - Cube-based 3D model (body, head, ears, legs, tail)
+#   - Hunts ground ducks within range
+#   - Time-limited deployment (30s total, 5-10s hunting)
+#   - Scoring: +10 per duck caught
+#   - Bonus: +50 if all initial ground ducks are caught
+#   - Cooldown after deployment
+
+# HUD Class
+# - Displays:
+#   - Score and total points
+#   - Ammo count (10/10 default, upgradable)
+#   - Night mode indicator
+#   - Night vision status
+#   - Auto fire status and cooldown
+#   - Dog status (time remaining, ducks caught)
+# - Features:
+#   - Floating messages for events
+#   - Crosshair
+#   - Paused message
+
+# Shop Class
+# - Items:
+#   - Bigger Magazine (+5 ammo, 100 pts)
+#   - Night Vision (see in night mode, 50 pts)
+#   - Auto Fire Mode (10s auto-lock, 200 pts)
+#   - Dog Companion (30s deployment, 100 pts)
+# - Features:
+#   - Currency system
+#   - Cooldowns for limited items
+#   - Visual feedback for purchases
+
+#  Main Game Class (Game)
+# - Initialization:
+#   - Duck spawning
+#   - Tree generation
+#   - Lighting setup (single light source)
+# - Player Controls:
+#   - WASD movement
+#   - Mouse look (horizontal/vertical)
+#   - Shooting (left click)
+#   - Sniper mode (right click)
+#   - Reload (R key)
+#   - Shop toggle (B key)
+#   - Pause (P key)
+#   - Night mode (Tab)
+#   - Quit (Q/Escape)
+# - Game Mechanics:
+#   - Collision detection (bullets vs ducks, player vs trees)
+#   - Auto fire targeting nearest duck
+#   - Difficulty scaling (speed increases with score/night mode)
+#   - Duck respawning
+#   - Bullet management
+# - Rendering:
+#   - 3D environment (ground, skybox)
+#   - World objects (trees, ducks, bullets, dog)
+#   - HUD overlay
+#   - Shop interface
+# - Game Loop:
+#   - 60 FPS animation
+#   - Real-time updates for all objects
+
+#  Additional Features
+# - Night Mode: Darker environment, camouflage for ducks, requires night vision
+# - Auto Fire: Automatic targeting with increased fire rate
+# - Dog Companion: AI helper for hunting ground ducks
+# - Shop System: Upgradeable ammo, special abilities
+# - Scoring System: Points for hits, bonuses for dog catches
+# - Collision System: Trees block movement and bullets
+# - Boundary System: Ducks reset position when flying too far
+# - Animation: Wing flapping, leg swinging, dog movement
+
+# Technical Features
+# - OpenGL immediate mode rendering
+# - GLUT event handling
+# - Perspective projection with gluPerspective
+# - Lighting with glLight
+# - Texture-less 3D models using glutSolidCube and glutSolidSphere
+# - Real-time 3D transformations (translate, rotate, scale)
+# - Mouse capture and warping for look controls
+# - Keyboard state tracking for smooth movement
+# - Timer-based events and cooldowns
+
+
 # * libraries
 
 from OpenGL.GL import *
