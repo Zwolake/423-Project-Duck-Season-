@@ -60,7 +60,7 @@ SCORE = 0   #? score + currency
 
 AMMO_COUNT = 8  #? ammo
 
-TREE_COUNT = 30 #? environment tree count
+TREE_COUNT = 1000 #? environment tree count
 rand_x = [random.uniform(-GROUND_X, GROUND_X) for _ in range(TREE_COUNT)]
 rand_y = [random.uniform(GROUND_Y, -GROUND_Y) for _ in range(TREE_COUNT)]
 
@@ -322,6 +322,7 @@ def draw_surface():
     glVertex3f(GROUND_X, GROUND_Y, 0)
     glVertex3f(-GROUND_X, GROUND_Y, 0)
 
+
     glColor3f(0, 0.85, 0.85)
     glVertex3f(-GROUND_X, -GROUND_Y, 0)
     glVertex3f(GROUND_X, -GROUND_Y, 0)
@@ -342,8 +343,9 @@ def draw_surface():
     glVertex3f(-GROUND_X, -GROUND_Y, 0)
     glVertex3f(-GROUND_X, -GROUND_Y, DUCK_FLYING_Z + 10)
     glVertex3f(-GROUND_X, GROUND_Y, DUCK_FLYING_Z + 10)
-        
+
     glEnd()
+        
 
 #! Border
 
@@ -581,7 +583,10 @@ def showScreen():
     #TODO setupCamera()
     setupCamera()
 
+    glDisable(GL_DEPTH_TEST)
     draw_surface()
+    glEnable(GL_DEPTH_TEST)
+
 
     for i in range(TREE_COUNT):
         Tree(rand_x[i], rand_y[i]).draw_tree()
@@ -601,6 +606,11 @@ def showScreen():
     for bullet in BULLETS:
         bullet.draw()
 
+    hud.render(window_width, window_height)
+
+    # draw Shop overlay (if active)
+    shop.render(window_width, window_height)
+    
     #TODO UI elements
 
     #* ---- Crosshair ---- #
@@ -735,38 +745,47 @@ class HUD:
         self.health, self.crosshair_size = 100, 10
         self.messages, self.last_shot_time = [], 0.0
         self.night_vision, self.auto_fire_active = False, False
+
     def draw_text(self,x,y,text,font=GLUT_BITMAP_HELVETICA_18):
         glRasterPos2f(x,y)
         for ch in text: glutBitmapCharacter(font, ord(ch))
+
     def shoot(self):
         now, cooldown = time.time(), (0.1 if self.auto_fire_active else 0.5)
         if now - self.last_shot_time < cooldown: return False
         if self.ammo>0:
             self.ammo -= 1; self.last_shot_time = now; return True
         self.messages.append(("Out of Ammo!",time.time())); return False
+    
     def reload(self):
         self.ammo=self.magazine_size; self.messages.append(("Reloaded!",time.time()))
+
     def render(self,w,h):
         glMatrixMode(GL_PROJECTION); glPushMatrix(); glLoadIdentity(); gluOrtho2D(0,w,0,h)
         glMatrixMode(GL_MODELVIEW); glPushMatrix(); glLoadIdentity()
         glDisable(GL_LIGHTING); glDisable(GL_DEPTH_TEST); glEnable(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA)
+
         glColor3f(1,1,1); self.draw_text(20,h-30,f"Score: {self.score}")
+
         self.draw_text(20,h-55,f"Ammo: {self.ammo}/{self.magazine_size}")
         self.draw_text(20,h-80,f"Currency: {self.currency}")
         cx, cy, size = w//2, h//2, self.crosshair_size
+
         glColor3f(0.1,1.0,0.1)
         glBegin(GL_LINES)
         glVertex2f(cx-size,cy); glVertex2f(cx+size,cy)
         glVertex2f(cx,cy-size); glVertex2f(cx,cy+size)
         glEnd()
         now=time.time(); msgs=[]; y_off=0
+
         for msg,t in self.messages:
             if now-t<2.0:
                 glColor3f(1,1,0); self.draw_text(w//2-40,h//2+60+y_off,msg)
                 y_off+=20; msgs.append((msg,t))
         self.messages=msgs
-        glDisable(GL_BLEND); glEnable(GL_DEPTH_TEST); glEnable(GL_LIGHTING)
+
+        glDisable(GL_BLEND); glEnable(GL_DEPTH_TEST); #glEnable(GL_LIGHTING)
         glMatrixMode(GL_PROJECTION); glPopMatrix(); glMatrixMode(GL_MODELVIEW); glPopMatrix()
 
 
@@ -847,7 +866,7 @@ class Shop:
 
         glDisable(GL_BLEND)
         glEnable(GL_DEPTH_TEST)
-        glEnable(GL_LIGHTING)
+        # glEnable(GL_LIGHTING)
 
         glMatrixMode(GL_PROJECTION)
         glPopMatrix()
